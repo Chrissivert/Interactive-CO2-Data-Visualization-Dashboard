@@ -15,22 +15,22 @@ st.title("Interactive CO₂ Emissions & Greenhouse Gas Dashboard")
 def load_data(file_path):
   return pd.read_csv(file_path)
 
-uploaded_file = st.file_uploader("Upload the primary CO₂ CSV file", type=["csv"])
+uploaded_file = st.file_uploader("Upload the primary CO₂ CSV file", type=["csv"], accept_multiple_files=True) # TODO: Handle multiple files in the application
 if uploaded_file:
   df = load_data(uploaded_file)
   st.write(":green[Dataset loaded successfully!]")
 
   st.sidebar.header("Filter Data")
     
-  countries = df["country"].unique()
+  countries = df["Entity"].unique()
   selected_country = st.sidebar.multiselect("Select Country", countries, default=countries[:2])
 
-  years = df["year"].unique()
+  years = df["Year"].unique()
   selected_year_range = st.sidebar.slider("Select Year Range", min(years), max(years), (min(years), max(years)))
     
-  filtered_data = df[(df["country"].isin(selected_country)) &
-                       (df["year"] >= selected_year_range[0]) &
-                       (df["year"] <= selected_year_range[1])]
+  filtered_data = df[(df["Entity"].isin(selected_country)) &
+                       (df["Year"] >= selected_year_range[0]) &
+                       (df["Year"] <= selected_year_range[1])]
 
   metrics = ["co2", "co2_per_capita", "co2_growth_abs", "cement_co2", "coal_co2", 
                "gas_co2", "oil_co2", "methane", "nitrous_oxide", "primary_energy_consumption"]
