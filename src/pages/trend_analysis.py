@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-def trend_analysis_page(metrics, selected_country, selected_year_range):
+def page(metrics, selected_country, selected_year_range):
   st.title("Trend Analysis")
   if len(metrics) >= 2:
     st.header("Select Metrics for Comparison")
@@ -38,3 +38,5 @@ def trend_analysis_page(metrics, selected_country, selected_year_range):
         st.plotly_chart(fig, use_container_width=True)
     else:
       st.write(":red[No data available for the selected country and year range.]")
+  else:
+    st.write(":red[Must have at least two files uploaded to use this feature.]")

@@ -1,8 +1,8 @@
 import streamlit as st
 
-import src.data_exploration
-import service as s
-import src.trend_analysis
+import src.pages.data_exploration
+import src.service as s
+import src.pages.trend_analysis
 
 st.set_page_config(
   page_title="Data Visualization Dashboard",
@@ -36,7 +36,7 @@ if uploaded_files:
     st.title("Welcome to the Data Visualization Dashboard")
       
   elif page == "Data Exploration":
-    src.data_exploration.data_exploration_page(dataframes, selected_country, selected_year_range)
+    src.pages.data_exploration.page(dataframes, selected_country, selected_year_range)
 
   elif page == "Trend Analysis":
-    src.trend_analysis.trend_analysis_page(metrics, selected_country, selected_year_range)
+    src.pages.trend_analysis.page(metrics, selected_country, selected_year_range)
