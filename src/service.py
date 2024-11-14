@@ -20,3 +20,6 @@ def get_unique_years(dataframes: list[pd.DataFrame]) -> list:
   for dataframe in dataframes:
     unique_years.update(dataframe['Year'].unique())
   return sorted(unique_years)
+
+def get_flag_url(country_code):
+    return f"https://flagcdn.com/w40/{country_code.lower()}.png"
