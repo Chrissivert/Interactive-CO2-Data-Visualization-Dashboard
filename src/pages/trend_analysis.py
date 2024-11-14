@@ -10,8 +10,8 @@ def page(metrics, selected_country, selected_year_range):
         st.header("Select Metrics for Comparison")
 
         col1, col2 = st.columns(2)
-        metric1_label = col1.selectbox("Select Metric for the X-Axis", list(metrics.keys()), key="metric1")
-        metric2_label = col2.selectbox("Select Metric for the Y-Axis", list(metrics.keys()), key="metric2")
+        metric1_label = col1.selectbox("Select Metric for the X-Axis", list(metrics.keys()), key="metric1", index=0)
+        metric2_label = col2.selectbox("Select Metric for the Y-Axis", list(metrics.keys()), key="metric2",index=1)
 
         df1, metric1 = metrics[metric1_label]
         df2, metric2 = metrics[metric2_label]
