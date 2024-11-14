@@ -3,15 +3,20 @@ import pandas as pd
 import plotly.express as px
 import src.service as s
 
-
 def page(metrics, selected_country, selected_year_range):
     st.title("Trend Analysis")
+    
     if len(metrics) >= 2:
         st.header("Select Metrics for Comparison")
 
         col1, col2 = st.columns(2)
+
         metric1_label = col1.selectbox("Select Metric for the X-Axis", list(metrics.keys()), key="metric1", index=0)
-        metric2_label = col2.selectbox("Select Metric for the Y-Axis", list(metrics.keys()), key="metric2",index=1)
+        metric2_label = col2.selectbox("Select Metric for the Y-Axis", list(metrics.keys()), key="metric2", index=1)
+
+        if metric1_label == metric2_label:
+            st.warning("Please select two unique metrics for comparison.")
+            return  #Dont kill me Vegard 😔
 
         df1, metric1 = metrics[metric1_label]
         df2, metric2 = metrics[metric2_label]
@@ -27,15 +32,13 @@ def page(metrics, selected_country, selected_year_range):
         merged_df = pd.merge(df1_filtered, df2_filtered, on=["Entity", "Year", "Code"], how="inner")
 
         selected_country_codes = dict(merged_df[['Entity', 'Code']].drop_duplicates().assign(
-        Code=lambda df: df['Code'].str.upper()).values)
+            Code=lambda df: df['Code'].str.upper()).values)
 
         if not merged_df.empty:
             for country, iso_code in selected_country_codes.items():
                 country_data = merged_df[merged_df["Entity"] == country]
-                country_code = s.get_alpha_2_code(iso_code)  # Fetch alpha-2 country code
-                print(country_code)
+                country_code = s.get_alpha_2_code(iso_code)
                 flag_image = s.get_flag_url(country_code)
-                
 
                 fig = px.scatter(
                     country_data,
