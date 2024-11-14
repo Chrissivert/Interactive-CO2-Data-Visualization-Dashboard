@@ -16,7 +16,7 @@ def page(metrics, selected_country, selected_year_range):
 
         if metric1_label == metric2_label:
             st.warning("Please select two unique metrics for comparison.")
-            return  #Dont kill me Vegard 😔
+            return  # Dont kill me Vegard 😔
 
         df1, metric1 = metrics[metric1_label]
         df2, metric2 = metrics[metric2_label]
@@ -30,6 +30,11 @@ def page(metrics, selected_country, selected_year_range):
                            (df2["Year"] <= selected_year_range[1])][["Entity", "Year", "Code", metric2]]
 
         merged_df = pd.merge(df1_filtered, df2_filtered, on=["Entity", "Year", "Code"], how="inner")
+        displayed_countries = merged_df["Entity"].unique()
+        missing_countries = [country for country in selected_country if country not in displayed_countries]
+
+        if missing_countries:
+            st.warning(f"The following countries are not displayed due to missing data for one or both selected metrics: {', '.join(missing_countries)}.")
 
         selected_country_codes = dict(merged_df[['Entity', 'Code']].drop_duplicates().assign(
             Code=lambda df: df['Code'].str.upper()).values)
