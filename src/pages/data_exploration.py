@@ -1,16 +1,16 @@
 import streamlit as st
 import plotly.express as px
 import src.service as s
-import numpy as np  
+import numpy as np  # Required for logarithmic transformation
 
 def page(dataframes, selected_countries, selected_year_range):
     st.title("Data Exploration")
     
     tab1, tab2 = st.tabs(["📈 Chart", "📋 Table"])
     
-    for dataframe in dataframes:
+    for idx, dataframe in enumerate(dataframes):
         with tab1:
-            scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"))
+            scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
             log_scale = scale_type == "Logarithmic"  
             tab1.plotly_chart(chart(dataframe, selected_countries, selected_year_range, log_scale), use_container_width=True)
         
@@ -32,4 +32,4 @@ def chart(dataframe, selected_country, selected_year_range, log_scale=False):
                    y=last_column, 
                    color="Entity", 
                    title=f"{last_column} over time",
-                   log_y=log_scale) 
+                   log_y=log_scale)  
