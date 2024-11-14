@@ -1,12 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import flag
-import requests
+import src.service as s
 
-# Function to get the flag URL
-def get_flag_url(iso_code):
-    return f"https://flagcdn.com/w320/{iso_code.lower()}.png"
 
 def page(metrics, selected_country, selected_year_range):
     st.title("Trend Analysis")
@@ -31,13 +27,15 @@ def page(metrics, selected_country, selected_year_range):
         merged_df = pd.merge(df1_filtered, df2_filtered, on=["Entity", "Year", "Code"], how="inner")
 
         selected_country_codes = dict(merged_df[['Entity', 'Code']].drop_duplicates().assign(
-        Code=lambda df: df['Code'].str[:2].str.upper()).values)
+        Code=lambda df: df['Code'].str.upper()).values)
 
         if not merged_df.empty:
             for country, iso_code in selected_country_codes.items():
                 country_data = merged_df[merged_df["Entity"] == country]
-                flag_url = get_flag_url(iso_code)  # Fetch flag URL
-
+                country_code = s.get_alpha_2_code(iso_code)  # Fetch alpha-2 country code
+                print(country_code)
+                flag_image = s.get_flag_url(country_code)
+                
 
                 fig = px.scatter(
                     country_data,
@@ -52,6 +50,6 @@ def page(metrics, selected_country, selected_year_range):
                     selector=dict(mode="lines")
                 )
                 fig.update_traces(mode="lines")
-                st.write(f'<span style="display: inline-block; font-weight: bold;">{country}</span> <img src="{flag_url}" width="40" style="vertical-align: middle;">', unsafe_allow_html=True)
+                st.write(f'<span style="display: inline-block; font-weight: bold;">{country}</span> <img src="{flag_image}" width="40" style="vertical-align: middle;">', unsafe_allow_html=True)
                 
                 st.plotly_chart(fig, use_container_width=True)
