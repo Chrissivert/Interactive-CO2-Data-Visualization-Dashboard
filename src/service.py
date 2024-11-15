@@ -11,6 +11,14 @@ def load_csv_data(file_paths: list) -> list:
 def get_unique_column_names(dataframe: pd.DataFrame) -> list:
   return [col for col in dataframe.columns if col not in ['Entity', 'Code', 'Year']]
 
+def get_metrics(dataframes: list[pd.DataFrame]) -> dict:
+  metrics = {}
+  for dataframe in dataframes:
+    for column in get_unique_column_names(dataframe):
+      metrics[column] = (dataframe, column)
+      
+  return metrics
+
 def get_unique_countries(dataframes: list[pd.DataFrame]) -> list:
   unique_countries = set()
   for dataframe in dataframes:
