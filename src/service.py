@@ -32,16 +32,16 @@ def get_unique_years(dataframes: list[pd.DataFrame]) -> list:
   return sorted(unique_years)
 
 def get_alpha_2_code(alpha_3):
-    url = f"https://restcountries.com/v3.1/all"
-    response = requests.get(url) 
-    countries = response.json()    
-    for country in countries:
-        if country.get("cca3") == alpha_3:  
-            return country.get("cca2") 
+  url = f"https://restcountries.com/v3.1/all"
+  response = requests.get(url) 
+  countries = response.json()    
+  for country in countries:
+    if country.get("cca3") == alpha_3:  
+      return country.get("cca2") 
   
-    return None 
+  return None 
 
 
 
 def get_flag_url(country_code):
-    return f"https://flagcdn.com/w40/{country_code.lower()}.png"
+  return f"https://flagcdn.com/w40/{country_code.lower()}.png"
