@@ -1,7 +1,7 @@
 import streamlit as st
 import plotly.express as px
 import src.service as s
-import numpy as np  # Required for logarithmic transformation
+import numpy as np
 
 def page(dataframes, selected_countries, selected_year_range):
     st.title("Data Exploration")
