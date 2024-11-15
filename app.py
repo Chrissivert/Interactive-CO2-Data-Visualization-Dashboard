@@ -20,12 +20,13 @@ if uploaded_files:
   st.write(":green[Datasets loaded successfully!]" if len(dataframes) > 1 else ":green[Dataset loaded successfully!]")
   
   page, selected_country, selected_year_range = sidebar.display(dataframes)
-
-  if page == pn.Pages.HOME.value:
-    src.pages.home.page()
+  
+  match page:
+    case pn.Pages.DATA_EXPLORATION.value:
+      src.pages.data_exploration.page(dataframes, selected_country, selected_year_range)
+    
+    case pn.Pages.TREND_ANALYSIS.value:
+      src.pages.trend_analysis.page(s.get_metrics(dataframes), selected_country, selected_year_range)
       
-  elif page == pn.Pages.DATA_EXPLORATION.value:
-    src.pages.data_exploration.page(dataframes, selected_country, selected_year_range)
-
-  elif page == pn.Pages.TREND_ANALYSIS.value:
-    src.pages.trend_analysis.page(s.get_metrics(dataframes), selected_country, selected_year_range)
+    case _:
+      src.pages.home.page()
