@@ -20,7 +20,7 @@ def predict_future_values(metrics: dict, selected_countries: list) -> None:
   st.header("Future Value Predictions")
   
   years_to_predict = st.number_input(
-    "Insert the amount of years to predict into the future", value=1, placeholder="Type the number of years...", min_value=1
+    "Insert the amount of years to predict into the future", value=1, placeholder="Type the number of years to predict...", min_value=1
   )
   
   metric_to_dataframe_map = {metric: df for metric, (df, _) in metrics.items()}
@@ -47,6 +47,10 @@ def plot_predict_future_values(tab, selected_countries: list, country_data: pd.D
     for country in selected_countries:
       country_specific_data = country_data[country_data["Entity"] == country]
       country_specific_data = country_specific_data[["Year", selected_metric]].dropna()
+      
+      if country_specific_data.empty:
+        st.warning(f"No valid data for predictions for: {country}")
+        continue
       
       future_years, predictions = s.predict_future_values_with_models(country_specific_data, selected_metric, years_to_predict, model)
       
@@ -129,8 +133,8 @@ def compare_matrics(metrics, selected_country, selected_year_range):
                 
         st.plotly_chart(fig, use_container_width=True)
     else:
-      st.warning("Please have at least two files uploaded to be able to use this feature.")
+      st.warning("Please select at least one valid entity for this feature to work.")
       return None
   else:
-    st.warning("Please upload at least teo files to use this feature.")
+    st.warning("Please upload at least two files to use this feature.")
     return None
