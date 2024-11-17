@@ -6,6 +6,7 @@ def display(dataframes):
   page = st.sidebar.selectbox("Select Page", [page.value for page in pn.Pages])
 
   st.sidebar.header("Filter Data")
+  
   countries = s.get_unique_countries(dataframes)
   selected_country = st.sidebar.multiselect("Select Country", countries, default=countries[:2])
 
