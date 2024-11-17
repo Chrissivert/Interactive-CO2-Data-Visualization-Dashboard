@@ -41,7 +41,7 @@ def predict_future_values(metrics: dict, selected_countries: list) -> None:
   plot_predict_future_values(tab2, selected_countries, country_data, selected_metric, years_to_predict, make_pipeline(PolynomialFeatures(degree=20), LinearRegression()))
   plot_predict_future_values(tab3, selected_countries, country_data, selected_metric, years_to_predict, RandomForestRegressor(n_estimators=100, random_state=42))
     
-def plot_predict_future_values(tab, selected_countries, country_data, selected_metric, years_to_predict, model):
+def plot_predict_future_values(tab, selected_countries: list, country_data: pd.DataFrame, selected_metric: str, years_to_predict: int, model) -> None:
   with tab:
     fig_pred = go.Figure()
     for country in selected_countries:
