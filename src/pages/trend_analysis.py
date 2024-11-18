@@ -42,9 +42,13 @@ def predict_future_values(metrics: dict, selected_countries: list) -> None:
     tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
     
     plot_predict_future_values(tab1, selected_countries, country_data, selected_metric, years_to_predict, LinearRegression(), scale_type)
-    plot_predict_future_values(tab2, selected_countries, country_data, selected_metric, years_to_predict, make_pipeline(PolynomialFeatures(degree=20), LinearRegression()), scale_type)
+    
+    custom_markdown = CustomMarkdown()
+    degree = custom_markdown.polynomial_degree_slider(tab2)
+    plot_predict_future_values(tab2, selected_countries, country_data, selected_metric, years_to_predict, make_pipeline(PolynomialFeatures(degree=degree), LinearRegression()), scale_type)
     plot_predict_future_values(tab3, selected_countries, country_data, selected_metric, years_to_predict, RandomForestRegressor(n_estimators=100, random_state=42), scale_type)
     
+
 def plot_predict_future_values(tab, selected_countries: list, country_data: pd.DataFrame, selected_metric: str, years_to_predict: int, model, scale_type: str) -> None:
     with tab:
         log_scale = scale_type == "Logarithmic" 
@@ -80,10 +84,10 @@ def plot_predict_future_values(tab, selected_countries: list, country_data: pd.D
             xaxis_title="Year",
             yaxis_title=selected_metric,
             legend_title="Country",
-            yaxis_type='log' if log_scale else 'linear'  # Apply log scale if selected
+            yaxis_type='log' if log_scale else 'linear'
         )
 
-        tab.plotly_chart(fig_pred, use_container_width=True)
+        st.plotly_chart(fig_pred, use_container_width=True)
 
 def compare_matrics(metrics, selected_country, selected_year_range):
     custom_markdown = CustomMarkdown()
