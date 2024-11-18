@@ -76,76 +76,95 @@ def plot_predict_future_values(tab, selected_countries: list, country_data: pd.D
     )
     
     tab.plotly_chart(fig_pred, use_container_width=True)
-
 def compare_matrics(metrics, selected_country, selected_year_range):
-  st.header("Select Metrics for Comparison")
-  
-  if len(metrics) > 1:
-    col1, col2 = st.columns(2)
-    metric1_label = col1.selectbox("Select Metric for the X-Axis", list(metrics.keys()), key="metric1", index=0)
-    metric2_label = col2.selectbox("Select Metric for the Y-Axis", list(metrics.keys()), key="metric2", index=1)
+    st.header("Select Metrics for Comparison")
 
-    if "swap_state" not in st.session_state:
-      st.session_state.swap_state = False        
-    
-    if metric1_label == metric2_label:
-      st.warning("Please select two unique metrics for comparison.")
-      return None
-    
-    swap_datasets = st.button("Swap Metrics")
-    
-    if swap_datasets:
-      st.session_state.swap_state = not st.session_state.swap_state
-        
-    if st.session_state.swap_state:
-      metric1_label, metric2_label = metric2_label, metric1_label
+    if len(metrics) > 1:
+        col1, col_mid, col2 = st.columns([1, 0.5, 1])
 
-    df1, metric1 = metrics[metric1_label]
-    df2, metric2 = metrics[metric2_label]
+        if "metric1" not in st.session_state:
+            st.session_state.metric1 = list(metrics.keys())[0]  
+        if "metric2" not in st.session_state:
+            st.session_state.metric2 = list(metrics.keys())[1] 
 
-    df1_filtered = df1[(df1["Entity"].isin(selected_country)) 
-                       & (df1["Year"] >= selected_year_range[0]) 
-                       & (df1["Year"] <= selected_year_range[1])][["Entity", "Year", "Code", metric1]]
-
-    df2_filtered = df2[(df2["Entity"].isin(selected_country)) 
-                       & (df2["Year"] >= selected_year_range[0]) 
-                       & (df2["Year"] <= selected_year_range[1])][["Entity", "Year", "Code", metric2]]
-
-    merged_df = pd.merge(df1_filtered, df2_filtered, on=["Entity", "Year", "Code"], how="inner")
-    displayed_countries = merged_df["Entity"].unique()
-    missing_countries = [country for country in selected_country if country not in displayed_countries]
-
-    if missing_countries:
-        st.warning(f"The following countries are not displayed due to missing data for one or both selected metrics: {', '.join(missing_countries)}.")
-
-    selected_country_codes = dict(merged_df[['Entity', 'Code']].drop_duplicates().assign(
-            Code=lambda df: df['Code'].str.upper()).values)
-
-    if not merged_df.empty:
-      for country, iso_code in selected_country_codes.items():
-        country_data = merged_df[merged_df["Entity"] == country]
-        # country_code = s.get_alpha_2_code(iso_code)
-        # flag_image = s.get_flag_url(country_code)
-
-        fig = px.scatter(
-          country_data,
-          x=metric1,
-          y=metric2,
-          trendline="ols",
-          title=f"{metric1} vs {metric2} for {country}",
-          labels={metric1: metric1, metric2: metric2}
+        metric1_label = col1.selectbox(
+            "Select Metric for the X-Axis",
+            list(metrics.keys()),
+            index=list(metrics.keys()).index(st.session_state.metric1),
+            key="metric1_widget",
         )
-        fig.update_traces(
-          line=dict(color="green"), 
-          selector=dict(mode="lines")
+        metric2_label = col2.selectbox(
+            "Select Metric for the Y-Axis",
+            list(metrics.keys()),
+            index=list(metrics.keys()).index(st.session_state.metric2),
+            key="metric2_widget",
         )
-        fig.update_traces(mode="lines")
-        # st.write(f'<span style="display: inline-block; font-weight: bold;">{country}</span> <img src="{flag_image}" width="40" style="vertical-align: middle;">', unsafe_allow_html=True)
-                
-        st.plotly_chart(fig, use_container_width=True)
+
+        st.session_state.metric1 = metric1_label
+        st.session_state.metric2 = metric2_label
+
+        with col_mid:
+            swap_datasets = st.button("Swap Metrics", use_container_width=True)
+
+        if metric1_label == metric2_label:
+            st.warning("Please select two unique metrics for comparison.")
+            return None
+
+        if swap_datasets:
+            st.session_state.metric1, st.session_state.metric2 = (
+                st.session_state.metric2,
+                st.session_state.metric1,
+            )
+            st.rerun() 
+
+        df1, metric1 = metrics[st.session_state.metric1]
+        df2, metric2 = metrics[st.session_state.metric2]
+
+        df1_filtered = df1[
+            (df1["Entity"].isin(selected_country))
+            & (df1["Year"] >= selected_year_range[0])
+            & (df1["Year"] <= selected_year_range[1])
+        ][["Entity", "Year", "Code", metric1]]
+
+        df2_filtered = df2[
+            (df2["Entity"].isin(selected_country))
+            & (df2["Year"] >= selected_year_range[0])
+            & (df2["Year"] <= selected_year_range[1])
+        ][["Entity", "Year", "Code", metric2]]
+
+        merged_df = pd.merge(df1_filtered, df2_filtered, on=["Entity", "Year", "Code"], how="inner")
+        displayed_countries = merged_df["Entity"].unique()
+        missing_countries = [
+            country for country in selected_country if country not in displayed_countries
+        ]
+
+        if missing_countries:
+            st.warning(
+                f"The following countries are not displayed due to missing data for one or both selected metrics: {', '.join(missing_countries)}."
+            )
+
+        if not merged_df.empty:
+            for country in displayed_countries:
+                country_data = merged_df[merged_df["Entity"] == country]
+
+                fig = px.scatter(
+                    country_data,
+                    x=metric1,
+                    y=metric2,
+                    trendline="ols",
+                    title=f"{st.session_state.metric1} vs {st.session_state.metric2} for {country}",
+                    labels={metric1: metric1, metric2: metric2},
+                )
+                fig.update_traces(
+                    line=dict(color="green"),
+                    selector=dict(mode="lines"),
+                )
+                fig.update_traces(mode="lines")
+
+                st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.warning("Please select at least one valid entity for this feature to work.")
+            return None
     else:
-      st.warning("Please select at least one valid entity for this feature to work.")
-      return None
-  else:
-    st.warning("Please upload at least two files to use this feature.")
-    return None
+        st.warning("Please upload at least two files to use this feature.")
+        return None
