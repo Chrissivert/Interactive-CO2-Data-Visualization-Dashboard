@@ -8,6 +8,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from src.markdown.custom_markdown import CustomMarkdown
 
 def page(metrics, selected_country, selected_year_range):
   st.title("Trend Analysis")
@@ -77,6 +78,7 @@ def plot_predict_future_values(tab, selected_countries: list, country_data: pd.D
     
     tab.plotly_chart(fig_pred, use_container_width=True)
 def compare_matrics(metrics, selected_country, selected_year_range):
+    custom_markdown = CustomMarkdown()
     st.header("Select Metrics for Comparison")
 
     if len(metrics) > 1:
@@ -105,6 +107,7 @@ def compare_matrics(metrics, selected_country, selected_year_range):
 
         with col_mid:
             swap_datasets = st.button("Swap Metrics", use_container_width=True)
+            custom_markdown.button_style(margin_top="30px", padding="5px 10px")
 
         if metric1_label == metric2_label:
             st.warning("Please select two unique metrics for comparison.")
