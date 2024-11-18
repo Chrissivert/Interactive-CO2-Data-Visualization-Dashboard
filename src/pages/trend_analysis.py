@@ -19,7 +19,7 @@ def predict_future_values(metrics: dict, selected_countries: list) -> None:
     st.header("Future Value Predictions")
     
     years_to_predict = st.number_input(
-        "Insert the amount of years to predict into the future", value=1, placeholder="Type the number of years to predict...", min_value=1
+        "Insert the amount of years to predict into the future", value=5, placeholder="Type the number of years to predict...", min_value=1
     )
     
     metric_to_dataframe_map = {metric: df for metric, (df, _) in metrics.items()}
