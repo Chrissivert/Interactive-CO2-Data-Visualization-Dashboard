@@ -85,9 +85,20 @@ def compare_matrics(metrics, selected_country, selected_year_range):
     metric1_label = col1.selectbox("Select Metric for the X-Axis", list(metrics.keys()), key="metric1", index=0)
     metric2_label = col2.selectbox("Select Metric for the Y-Axis", list(metrics.keys()), key="metric2", index=1)
 
+    if "swap_state" not in st.session_state:
+      st.session_state.swap_state = False        
+    
     if metric1_label == metric2_label:
       st.warning("Please select two unique metrics for comparison.")
       return None
+    
+    swap_datasets = st.button("Swap Metrics")
+    
+    if swap_datasets:
+      st.session_state.swap_state = not st.session_state.swap_state
+        
+    if st.session_state.swap_state:
+      metric1_label, metric2_label = metric2_label, metric1_label
 
     df1, metric1 = metrics[metric1_label]
     df2, metric2 = metrics[metric2_label]
