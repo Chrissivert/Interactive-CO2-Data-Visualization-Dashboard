@@ -1,5 +1,4 @@
 import streamlit as st
-
 import src.pages.data_exploration
 import src.pages.home
 import src.service as s
@@ -8,25 +7,32 @@ import src.page_names as pn
 import src.pages.sidebar as sidebar
 
 st.set_page_config(
-  page_title="Interactive Data Visualization Dashboard",
-  layout="wide",
-  initial_sidebar_state="expanded"
+    page_title="Interactive Data Visualization Dashboard",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 st.title("Interactive Data Visualization Dashboard")
 
-uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
-if uploaded_files:
-  dataframes = s.load_csv_data(uploaded_files)
-  st.write(":green[Datasets loaded successfully!]" if len(dataframes) > 1 else ":green[Dataset loaded successfully!]")
-  
-  page, selected_country, selected_year_range = sidebar.display(dataframes)
-  
-  match page:
-    case pn.Pages.DATA_EXPLORATION.value:
-      src.pages.data_exploration.page(dataframes, selected_country, selected_year_range)
-    
-    case pn.Pages.TREND_ANALYSIS.value:
-      src.pages.trend_analysis.page(s.get_metrics(dataframes), selected_country, selected_year_range)
-      
-    case _:
-      src.pages.home.page()
+default_file_path = "data/owid-co2-data.csv" 
+try:
+    default_dataframe = s.load_default_file(default_file_path)
+    st.write(":green[Default dataset loaded successfully!]")
+    dataframes = [default_dataframe]
+except FileNotFoundError:
+    st.error("Default file not found. Please ensure it exists at the specified path.")
+    dataframes = []
+
+if dataframes:
+    page, selected_country, selected_year_range = sidebar.display(dataframes)
+
+    match page:
+        case pn.Pages.DATA_EXPLORATION.value:
+            src.pages.data_exploration.page(dataframes, selected_country, selected_year_range)
+        
+        case pn.Pages.TREND_ANALYSIS.value:
+            src.pages.trend_analysis.page(s.get_metrics(dataframes), selected_country, selected_year_range)
+        
+        case _:
+            src.pages.home.page()
+else:
+    st.warning("No datasets available. Please check the default file path.")
