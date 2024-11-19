@@ -1,5 +1,7 @@
 import streamlit as st
 
+# TODO: Fix indent.
+# TODO: Is this class necessary?
 class CustomMarkdown:
     def __init__(self):
         pass

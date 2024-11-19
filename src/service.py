@@ -47,7 +47,7 @@ def predict_future_values_with_models(country_specific_data: pd.DataFrame, selec
 
 
 
-
+# Removed unused methods (?)
 def get_alpha_2_code(alpha_3):
   url = f"https://restcountries.com/v3.1/all"
   response = requests.get(url) 

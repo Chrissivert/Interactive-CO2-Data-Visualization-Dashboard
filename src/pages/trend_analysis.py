@@ -11,84 +11,113 @@ import src.service as s
 from src.markdown.custom_markdown import CustomMarkdown
 
 def page(metrics, selected_country, selected_year_range):
-    st.title("Trend Analysis")
-    compare_matrics(metrics, selected_country, selected_year_range)
-    predict_future_values(metrics, selected_country)
+  st.title("Trend Analysis")
+  compare_matrics(metrics, selected_country, selected_year_range)
+  predict_future_values(metrics, selected_country)
 
 def predict_future_values(metrics: dict, selected_countries: list) -> None:
-    st.header("Future Value Predictions")
-    
-    years_to_predict = st.number_input(
-        "Insert the amount of years to predict into the future", value=5, placeholder="Type the number of years to predict...", min_value=1
+  st.header("Future Value Predictions")
+  
+  years_to_predict = st.number_input(
+    "Insert the amount of years to predict into the future", 
+    value=5, 
+    placeholder="Type the number of years to predict...", 
+    min_value=1
+  )
+  
+  metric_to_dataframe_map = {metric: df for metric, (df, _) in metrics.items()}
+  available_metrics = list(metric_to_dataframe_map.keys())
+  
+  selected_metric = st.selectbox("Select a Metric", available_metrics)
+  dataframe = metric_to_dataframe_map[selected_metric]
+  
+  country_data = dataframe[dataframe["Entity"].isin(selected_countries)]
+  if country_data.empty:
+    st.warning(f"No data found for the selected countries: {', '.join(selected_countries)}.")
+    return None
+  
+  scale_type = st.radio(
+    "Select Y-axis scale", 
+    ("Linear", "Logarithmic"), 
+    key="scale_type"
+  )
+  
+  tab1, tab2, tab3 = st.tabs(["Linear Regression", 
+                              "Polynomial Features", 
+                              "Random Forest Regressor"]
+                             )
+  
+  degree = tab2.number_input("Insert the level of degree the Polynomial Feature model is to use (range is 2 to 92)", 
+                             value=20, 
+                             placeholder="Type the level of degree to use...", 
+                             min_value=2, 
+                             max_value=92)
+  
+  # custom_markdown = CustomMarkdown()
+  # degree = custom_markdown.polynomial_degree_slider(tab2)
+  
+  plot_predict_future_values(
+    tab1, 
+    selected_countries, 
+    country_data, 
+    selected_metric, 
+    years_to_predict, 
+    LinearRegression(), 
+    scale_type
     )
-    
-    metric_to_dataframe_map = {metric: df for metric, (df, _) in metrics.items()}
-    available_metrics = list(metric_to_dataframe_map.keys())
-    
-    selected_metric = st.selectbox("Select a Metric", available_metrics)
-    dataframe = metric_to_dataframe_map[selected_metric]
-    
-    country_data = dataframe[dataframe["Entity"].isin(selected_countries)]
-    if country_data.empty:
-        st.warning(f"No data found for the selected countries: {', '.join(selected_countries)}.")
-        return None
-    
-    scale_type = st.radio(
-        "Select Y-axis scale", 
-        ("Linear", "Logarithmic"), 
-        key="scale_type"  # Shared key for the whole page
+  plot_predict_future_values(
+    tab2, 
+    selected_countries, 
+    country_data, 
+    selected_metric, 
+    years_to_predict, 
+    make_pipeline(PolynomialFeatures(degree=degree), LinearRegression()), 
+    scale_type
     )
+  plot_predict_future_values(
+    tab3, 
+    selected_countries, 
+    country_data, 
+    selected_metric, 
+    years_to_predict, 
+    RandomForestRegressor(n_estimators=100, random_state=42), 
+    scale_type)
     
-    tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
-    
-    plot_predict_future_values(tab1, selected_countries, country_data, selected_metric, years_to_predict, LinearRegression(), scale_type)
-    
-    custom_markdown = CustomMarkdown()
-    degree = custom_markdown.polynomial_degree_slider(tab2)
-    plot_predict_future_values(tab2, selected_countries, country_data, selected_metric, years_to_predict, make_pipeline(PolynomialFeatures(degree=degree), LinearRegression()), scale_type)
-    plot_predict_future_values(tab3, selected_countries, country_data, selected_metric, years_to_predict, RandomForestRegressor(n_estimators=100, random_state=42), scale_type)
-    
 
-def plot_predict_future_values(tab, selected_countries: list, country_data: pd.DataFrame, selected_metric: str, years_to_predict: int, model, scale_type: str) -> None:
-    with tab:
-        log_scale = scale_type == "Logarithmic" 
+def plot_predict_future_values(tab, selected_countries: list, country_data: pd.DataFrame, selected_metric: str, years_to_predict: int, model, scale_type: str, special_function = None) -> None:
+  with tab:
+    special_function
+    log_scale = scale_type == "Logarithmic" 
+    fig_pred = go.Figure()
+    for country in selected_countries:
+      country_specific_data = country_data[country_data["Entity"] == country]
+      country_specific_data = country_specific_data[["Year", selected_metric]].dropna()
+      if country_specific_data.empty:
+        st.warning(f"No valid data for predictions for: {country}")
+        continue
+      future_years, predictions = s.predict_future_values_with_models(country_specific_data, selected_metric, years_to_predict, model)
+      fig_pred.add_trace(go.Scatter(
+        x=country_specific_data["Year"],
+        y=country_specific_data[selected_metric],
+        mode="lines",
+        name=f"Historical {selected_metric} ({country})"
+      ))
+      fig_pred.add_trace(go.Scatter(
+        x=future_years.flatten(),
+        y=predictions,
+        mode="lines+markers",
+        name=f"Predicted {selected_metric} ({country})"
+      ))
+    fig_pred.update_layout(
+      title=f"{selected_metric} Prediction for Next {years_to_predict} Years",
+      xaxis_title="Year",
+      yaxis_title=selected_metric,
+      legend_title="Country",
+      yaxis_type='log' if log_scale else 'linear'
+    )
+    st.plotly_chart(fig_pred, use_container_width=True)
 
-        fig_pred = go.Figure()
-
-        for country in selected_countries:
-            country_specific_data = country_data[country_data["Entity"] == country]
-            country_specific_data = country_specific_data[["Year", selected_metric]].dropna()
-
-            if country_specific_data.empty:
-                st.warning(f"No valid data for predictions for: {country}")
-                continue
-
-            future_years, predictions = s.predict_future_values_with_models(country_specific_data, selected_metric, years_to_predict, model)
-
-            fig_pred.add_trace(go.Scatter(
-                x=country_specific_data["Year"],
-                y=country_specific_data[selected_metric],
-                mode="lines",
-                name=f"Historical {selected_metric} ({country})"
-            ))
-
-            fig_pred.add_trace(go.Scatter(
-                x=future_years.flatten(),
-                y=predictions,
-                mode="lines+markers",
-                name=f"Predicted {selected_metric} ({country})"
-            ))
-
-        fig_pred.update_layout(
-            title=f"{selected_metric} Prediction for Next {years_to_predict} Years",
-            xaxis_title="Year",
-            yaxis_title=selected_metric,
-            legend_title="Country",
-            yaxis_type='log' if log_scale else 'linear'
-        )
-
-        st.plotly_chart(fig_pred, use_container_width=True)
-
+# TODO: Fix indent.
 def compare_matrics(metrics, selected_country, selected_year_range):
     custom_markdown = CustomMarkdown()
     st.header("Select Metrics for Comparison")
