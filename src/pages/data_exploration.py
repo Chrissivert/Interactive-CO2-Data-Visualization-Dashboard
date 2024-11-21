@@ -1,10 +1,20 @@
 import streamlit as st
 import plotly.express as px
 import numpy as np
+from src.future_prediction import FuturePrediction
+import streamlit as st
+import plotly.express as px
+import numpy as np
+from src.future_prediction import FuturePrediction
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+from sklearn.ensemble import RandomForestRegressor
 
 def page(dataframes, selected_countries, selected_year_range):
     st.title("Data Exploration")
     
+    # Existing chart and table tabs
     tab1, tab2 = st.tabs(["📈 Chart", "📋 Table"])
     
     for idx, dataframe in enumerate(dataframes):
@@ -20,13 +30,37 @@ def page(dataframes, selected_countries, selected_year_range):
             selected_continent = st.selectbox("Select continent", continent_options, key=f"continent_select_{idx}")
             
             # Plot the choropleth map for the selected continent (animation for the years)
-            tab1.plotly_chart(map_chart(dataframe, selected_continent, selected_year_range), use_container_width=True)
+            st.plotly_chart(map_chart(dataframe, selected_continent, selected_year_range), use_container_width=True)
             
             # Plot the line chart below the map
-            tab1.plotly_chart(chart(dataframe, selected_countries, selected_year_range, selected_column, log_scale), use_container_width=True)
+            st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, selected_column, log_scale), use_container_width=True)
         
         with tab2:
-            tab2.write(dataframe[dataframe["country"].isin(selected_countries)])
+            st.write(dataframe[dataframe["country"].isin(selected_countries)])
+
+    # Add Future Predictions Section
+    st.header("Future Predictions")
+    
+    years_to_predict = st.number_input("Insert the number of years to predict into the future", 
+                                       value=5, min_value=1)
+    
+    future_prediction = FuturePrediction(
+        selected_countries=selected_countries,
+        years_to_predict=years_to_predict,
+        scale_type=st.radio("Select Y-axis scale for prediction", ("Linear", "Logarithmic")),
+        dataframe=dataframes[0]
+    )
+    
+    # Create tabs for different prediction models
+    tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
+    
+    
+    # Generate predictions for each model
+    future_prediction.plot(tab1, LinearRegression())
+    future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=3), LinearRegression()))
+    future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
+
+
 def chart(dataframe, selected_country, selected_year_range, selected_column, log_scale=False):
     min_year = dataframe["year"].min()
     

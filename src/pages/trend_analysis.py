@@ -51,10 +51,7 @@ def predict_future_values(metrics: dict, selected_countries: list) -> None:
                              value=20, 
                              placeholder="Type the level of degree to use...", 
                              min_value=2, 
-                             max_value=92)
-  
-  # custom_markdown = CustomMarkdown()
-  # degree = custom_markdown.polynomial_degree_slider(tab2)
+                             max_value=30)
   
   plot_predict_future_values(
     tab1, 
