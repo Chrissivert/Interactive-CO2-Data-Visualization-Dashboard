@@ -11,7 +11,7 @@ def display(dataframes):
     # else:
     #     default_countries = st.session_state.get('selected_country', [])
 
-    page = st.sidebar.selectbox("Select Page", ["Home", "Data Exploration", "Trend Analysis"])
+    page = st.sidebar.selectbox("Select Page", ["Data Exploration", "Trend Analysis"])
 
     st.sidebar.header("Filter Data")
 

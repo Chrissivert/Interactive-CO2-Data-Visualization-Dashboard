@@ -1,6 +1,5 @@
 import streamlit as st
 import src.pages.data_exploration
-import src.pages.home
 import src.service as s
 import src.pages.trend_analysis
 import src.page_names as pn
@@ -31,8 +30,5 @@ if dataframes:
         
         case pn.Pages.TREND_ANALYSIS.value:
             src.pages.trend_analysis.page(s.get_metrics(dataframes), selected_country, selected_year_range)
-        
-        case _:
-            src.pages.home.page()
 else:
     st.warning("No datasets available. Please check the default file path.")
