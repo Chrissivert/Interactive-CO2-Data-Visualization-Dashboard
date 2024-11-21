@@ -7,9 +7,10 @@ import plotly.express as px
 def page(dataframe, selected_country, selected_year_range):
     st.title("Trend Analysis")
     
-    # Load the life expectancy and CO2 data
+    # Load the life expectancy, CO2, and carbon tax data
     life_expectancy_df = pd.read_csv("data/life-expectancy.csv")
     default_df = pd.read_csv("data/owid-co2-data.csv")
+    carbon_tax_df = pd.read_csv("data/emissions-weighted-carbon-price.csv")  # Load the carbon tax data
     life_expectancy_df['Year'] = life_expectancy_df['Year'].astype(int)  # Ensure year is in integer format
 
     # List of available columns for analysis from the CO2 dataframe
@@ -21,9 +22,9 @@ def page(dataframe, selected_country, selected_year_range):
     y_axis_variable = 'co2_per_capita'  # This will remain constant, as you want to analyze CO2 vs other factors
 
     # Compare metrics based on selected columns
-    compare_matrics(default_df, life_expectancy_df, selected_country, selected_year_range, x_axis_variable, y_axis_variable)
+    compare_matrics(default_df, life_expectancy_df, carbon_tax_df, selected_country, selected_year_range, x_axis_variable, y_axis_variable)
 
-def compare_matrics(default_df, life_expectancy_df, selected_country, selected_year_range, x_axis_variable, y_axis_variable):
+def compare_matrics(default_df, life_expectancy_df, carbon_tax_df, selected_country, selected_year_range, x_axis_variable, y_axis_variable):
     # Filter life expectancy data for selected countries and years
     life_expectancy_filtered = life_expectancy_df[ 
         (life_expectancy_df["Entity"].isin(selected_country)) & 
@@ -38,8 +39,16 @@ def compare_matrics(default_df, life_expectancy_df, selected_country, selected_y
         (default_df["year"] <= selected_year_range[1])
     ]
 
-    # Merge life expectancy data with the CO2 data based on Entity (Country) and Year
+    # Filter the carbon tax dataframe for selected countries and years
+    carbon_tax_filtered = carbon_tax_df[
+        (carbon_tax_df["Entity"].isin(selected_country)) &
+        (carbon_tax_df["Year"] >= selected_year_range[0]) & 
+        (carbon_tax_df["Year"] <= selected_year_range[1])
+    ]
+
+    # Merge life expectancy, CO2, and carbon tax data based on Entity (Country) and Year
     merged_df = pd.merge(co2_data_filtered, life_expectancy_filtered, left_on=["country", "year"], right_on=["Entity", "Year"], how="inner")
+    merged_df = pd.merge(merged_df, carbon_tax_filtered, left_on=["country", "year"], right_on=["Entity", "Year"], how="inner")
 
     # Ensure we have data after merging
     if merged_df.empty:
@@ -50,7 +59,7 @@ def compare_matrics(default_df, life_expectancy_df, selected_country, selected_y
     merged_df['life_expectancy'] = merged_df['Life expectancy']  # Rename or use as is if the column exists
 
     # --- Correlation Matrix ---
-    selected_columns = ['co2_per_capita', 'gdp', 'cement_co2', 'coal_co2_per_capita', 'life_expectancy']
+    selected_columns = ['co2_per_capita', 'gdp', 'cement_co2', 'coal_co2_per_capita', 'life_expectancy', 'Carbon Tax']
     correlation_matrix = merged_df[selected_columns].corr()
 
     # Create the plotly heatmap
