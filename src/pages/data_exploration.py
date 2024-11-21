@@ -57,7 +57,7 @@ def page(dataframes, selected_countries, selected_year_range):
     
     # Generate predictions for each model
     future_prediction.plot(tab1, LinearRegression())
-    future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=3), LinearRegression()))
+    future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=10), LinearRegression()))
     future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
 
 
