@@ -57,10 +57,13 @@ def chart(dataframe, selected_country, selected_year_range, selected_column, log
         title=f"{selected_column} over time",
         log_y=log_scale
     )
-
 def map_chart(dataframe, selected_year, selected_continent):
     # Filter the dataframe for the selected year
     year_data = dataframe[dataframe["year"] == selected_year]
+    
+    # Cap outliers in the existing dataframe
+    cap_value = dataframe["co2_per_capita"].quantile(0.98)  # Cap at the 98th percentile
+    dataframe["co2_per_capita"] = dataframe["co2_per_capita"].clip(upper=cap_value)
     
     # Set the scope based on the selected continent
     continent_scope = {
@@ -73,7 +76,11 @@ def map_chart(dataframe, selected_year, selected_continent):
         "Oceania": "oceania"
     }
     
-    # Create the choropleth map with the specified scope
+    # Define the min and max values for the color scale based on the capped data
+    min_value = dataframe["co2_per_capita"].min()
+    max_value = cap_value  # Use the capped value for the max range
+    
+    # Create the choropleth map with the specified scope and adjusted color scale
     fig = px.choropleth(
         year_data,
         locations="country",  # Column with country names
@@ -84,6 +91,7 @@ def map_chart(dataframe, selected_year, selected_continent):
         title=f"CO2 per Capita for {selected_year}",
         hover_name="country",  # Show country name on hover
         hover_data=["co2_per_capita"],  # Show CO2 per capita value on hover
+        range_color=[min_value, max_value]  # Set the color scale range between min and capped values
     )
     
     # Apply the selected continent's scope
