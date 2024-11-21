@@ -29,7 +29,6 @@ def page(dataframes, selected_countries, selected_year_range):
             tab2.write(dataframe[dataframe["country"].isin(selected_countries)])
 def chart(dataframe, selected_country, selected_year_range, selected_column, log_scale=False):
     min_year = dataframe["year"].min()
-    print(str(selected_year_range) + "dd")
     
     # Filter the data based on selected countries and year range
     filtered_data = dataframe[(dataframe["country"].isin(selected_country)) 
@@ -38,10 +37,9 @@ def chart(dataframe, selected_country, selected_year_range, selected_column, log
 
     # Sort the filtered data by year to ensure the x-axis is from low to high
     filtered_data = filtered_data.sort_values(by="year")
-    print(filtered_data["year"])
-    print(filtered_data.dtypes)
 
-    return px.line(
+    # Create the line chart
+    fig = px.line(
         filtered_data, 
         x='year', 
         y=selected_column, 
@@ -49,6 +47,32 @@ def chart(dataframe, selected_country, selected_year_range, selected_column, log
         title=f"{selected_column} over time",
         log_y=log_scale
     )
+    
+    # Add vertical lines for the Paris Agreement and COVID-19 outbreak
+    # User checkboxes to enable/disable the lines
+    add_paris_agreement_line = st.checkbox("Show Paris Agreement (2015)", value=True)
+    add_covid_outbreak_line = st.checkbox("Show COVID-19 Outbreak (2020)", value=True)
+    
+    if add_paris_agreement_line:
+        fig.add_vline(
+            x=2015, 
+            line=dict(color="blue", dash="dash"), 
+            annotation_text="Paris Agreement (2015)", 
+            annotation_position="top right"
+        )
+        
+    if add_covid_outbreak_line:
+        # If both lines are shown, adjust the annotation position for COVID-19
+        annotation_position = "bottom right" if add_paris_agreement_line else "top right"
+        fig.add_vline(
+            x=2020, 
+            line=dict(color="red", dash="dash"), 
+            annotation_text="COVID-19 Outbreak (2020)", 
+            annotation_position=annotation_position
+        )
+
+    return fig
+
 
 
 def map_chart(dataframe, selected_continent, selected_year_range):
