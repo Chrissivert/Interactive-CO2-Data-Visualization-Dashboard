@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import requests
 import numpy as np
+import pycountry_convert as pc
+
 
 @st.cache_data
 def load_csv_data(file_paths: list) -> list:
@@ -47,6 +49,43 @@ def predict_future_values_with_models(country_specific_data: pd.DataFrame, selec
   predictions = model.predict(future_years)
   
   return future_years, predictions,
+
+
+def country_to_continent(country_name):
+    try:
+        # Convert country name to ISO 2 code
+        country_alpha2 = pc.country_name_to_country_alpha2(country_name)
+        # Convert ISO 2 code to continent code
+        country_continent_code = pc.country_alpha2_to_continent_code(country_alpha2)
+        # Convert continent code to continent name
+        country_continent_name = pc.convert_continent_code_to_continent_name(country_continent_code)
+        return country_continent_name
+    except Exception as e:
+        return None
+    
+def get_unique_continents(dataframes: list) -> list:
+    continents = set()  # Initialize an empty set to store continents
+    for dataframe in dataframes:
+        for country in dataframe['country'].unique():  # Iterate over unique countries
+            continent = country_to_continent(country)  # Get continent for the country
+            if continent:  # Only add the continent if it's not None
+                continents.add(continent)
+    return sorted(continents)  # Return the sorted list of unique continents
+
+
+def get_countries_by_continent(dataframes: list, selected_continent: str) -> list:
+    countries_in_continent = set()
+    for dataframe in dataframes:
+        for country in dataframe['country'].unique():
+            try:
+                continent = country_to_continent(country)
+                if continent == selected_continent:
+                    countries_in_continent.add(country)
+            except Exception as e:
+                pass
+    return sorted(countries_in_continent)
+    
+
 
 
 

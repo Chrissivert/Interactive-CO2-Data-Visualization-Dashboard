@@ -11,7 +11,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.ensemble import RandomForestRegressor
 
-def page(dataframes, selected_countries, selected_year_range):
+def page(dataframes, selected_continent, selected_countries, selected_year_range):
     st.title("Data Exploration")
     
     # Existing chart and table tabs
@@ -24,10 +24,6 @@ def page(dataframes, selected_countries, selected_year_range):
             
             # Fixed the Y-axis column to 'co2_per_capita'
             selected_column = "co2_per_capita"  # This is fixed for the map and chart
-            
-            # Dropdown for selecting a continent
-            continent_options = ["World", "Europe", "Asia", "North America", "South America", "Africa", "Oceania"]
-            selected_continent = st.selectbox("Select continent", continent_options, key=f"continent_select_{idx}")
             
             # Plot the choropleth map for the selected continent (animation for the years)
             st.plotly_chart(map_chart(dataframe, selected_continent, selected_year_range), use_container_width=True)
@@ -54,7 +50,6 @@ def page(dataframes, selected_countries, selected_year_range):
     # Create tabs for different prediction models
     tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
     
-    
     # Generate predictions for each model
     future_prediction.plot(tab1, LinearRegression())
     future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=10), LinearRegression()))
@@ -62,9 +57,7 @@ def page(dataframes, selected_countries, selected_year_range):
 
 
 def chart(dataframe, selected_country, selected_year_range, selected_column, log_scale=False):
-    min_year = dataframe["year"].min()
     
-    # Filter the data based on selected countries and year range
     filtered_data = dataframe[(dataframe["country"].isin(selected_country)) 
                               & (dataframe["year"] >= selected_year_range[0]) 
                               & (dataframe["year"] <= selected_year_range[1])]
@@ -106,7 +99,6 @@ def chart(dataframe, selected_country, selected_year_range, selected_column, log
         )
 
     return fig
-
 
 
 def map_chart(dataframe, selected_continent, selected_year_range):
