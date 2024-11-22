@@ -4,7 +4,6 @@ import plotly.graph_objects as go
 import statsmodels.api as sm
 
 def page(dataframe, selected_continent, selected_country, selected_year_range):
-    st.title("Trend Analysis")
     
    
     # Load the life expectancy, CO2, carbon tax, and renewable energy data
