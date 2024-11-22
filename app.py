@@ -14,8 +14,9 @@ st.title("Interactive Data Visualization Dashboard")
 # Load the default dataset
 default_file_path = "data/owid-co2-data.csv" 
 test = "data/renewable-share-energy.csv"
+test2 = "data/emissions-weighted-carbon-price.csv"
 try:
-    default_dataframe = s.load_default_file(test)
+    default_dataframe = s.load_default_file(test2)
     st.write(":green[Default dataset loaded successfully!]")  # Inform the user that the dataset is loaded
     dataframes = [default_dataframe]
 except FileNotFoundError:
