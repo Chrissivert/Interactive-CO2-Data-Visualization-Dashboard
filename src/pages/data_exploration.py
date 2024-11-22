@@ -1,10 +1,7 @@
 import streamlit as st
 import plotly.express as px
 import numpy as np
-from src.future_prediction import FuturePrediction
-import streamlit as st
-import plotly.express as px
-import numpy as np
+import pandas as pd
 from src.future_prediction import FuturePrediction
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
@@ -19,17 +16,24 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
     
     for idx, dataframe in enumerate(dataframes):
         with tab1:
-            scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
-            log_scale = scale_type == "Logarithmic"
+            # Create a two-column layout for map and pie chart
+            col1, col2 = st.columns([2, 1])  # Adjust the width ratio as needed
             
-            # Fixed the Y-axis column to 'co2_per_capita'
-            selected_column = "co2_per_capita"  # This is fixed for the map and chart
+            # Map chart in the first column
+            with col1:
+                map_fig, pie_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries)
+                st.plotly_chart(map_fig, use_container_width=True)
+
+                # Move the scale type selection beneath the map
+                scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
+                log_scale = scale_type == "Logarithmic"
             
-            # Plot the choropleth map for the selected continent (animation for the years)
-            st.plotly_chart(map_chart(dataframe, selected_continent, selected_year_range), use_container_width=True)
-            
-            # Plot the line chart below the map
-            st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, selected_column, log_scale), use_container_width=True)
+            # Pie chart in the second column
+            with col2:
+                st.plotly_chart(pie_fig, use_container_width=True)
+
+            # Line chart below the map and pie chart
+            st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, "co2_per_capita", log_scale), use_container_width=True)
         
         with tab2:
             st.write(dataframe[dataframe["country"].isin(selected_countries)])
@@ -55,9 +59,7 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
     future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=10), LinearRegression()))
     future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
 
-
 def chart(dataframe, selected_country, selected_year_range, selected_column, log_scale=False):
-    
     filtered_data = dataframe[(dataframe["country"].isin(selected_country)) 
                               & (dataframe["year"] >= selected_year_range[0]) 
                               & (dataframe["year"] <= selected_year_range[1])]
@@ -99,9 +101,7 @@ def chart(dataframe, selected_country, selected_year_range, selected_column, log
         )
 
     return fig
-
-
-def map_chart(dataframe, selected_continent, selected_year_range):
+def map_chart(dataframe, selected_continent, selected_year_range, selected_countries):
     # Cap outliers in the existing dataframe
     cap_value = dataframe["co2_per_capita"].quantile(0.98)
     dataframe["co2_per_capita"] = dataframe["co2_per_capita"].clip(upper=cap_value)
@@ -110,7 +110,26 @@ def map_chart(dataframe, selected_continent, selected_year_range):
     filtered_dataframe = dataframe[(dataframe["year"] >= selected_year_range[0]) & 
                                    (dataframe["year"] <= selected_year_range[1])]
 
-    # Set the scope based on the selected continent
+    # Filter further for the selected countries
+    filtered_countries_df = filtered_dataframe[filtered_dataframe["country"].isin(selected_countries)]
+    
+    # Aggregate CO2 per capita for the selected countries for the given year
+    co2_by_country = filtered_countries_df.groupby("country")["co2_per_capita"].mean().reset_index()
+    
+    # Calculate percentage of total CO2 per capita for each country
+    total_co2 = co2_by_country["co2_per_capita"].sum()
+    co2_by_country["percentage"] = (co2_by_country["co2_per_capita"] / total_co2) * 100
+
+    # Create the pie chart
+    pie_fig = px.pie(
+        co2_by_country, 
+        names="country", 
+        values="percentage", 
+        title=f"CO2 per Capita Distribution of Selected Countries (Average from {selected_year_range[0]} to {selected_year_range[1]})",
+        labels={"percentage": "CO2 per Capita (%)"}
+    )
+
+    # Set up the map's continent scope
     continent_scope = {
         "World": "world",
         "Europe": "europe",
@@ -122,7 +141,7 @@ def map_chart(dataframe, selected_continent, selected_year_range):
     }
 
     # Create the choropleth map with animation frame for year, using filtered data
-    fig = px.choropleth(
+    map_fig = px.choropleth(
         filtered_dataframe,
         locations="country",  # Column with country names
         locationmode="country names",  # Use country names for the map
@@ -137,7 +156,7 @@ def map_chart(dataframe, selected_continent, selected_year_range):
     )
 
     # Apply the selected continent's scope
-    fig.update_geos(
+    map_fig.update_geos(
         scope=continent_scope[selected_continent],  # Set the map scope to the selected continent
         showcoastlines=True, 
         coastlinecolor="Black", 
@@ -145,10 +164,11 @@ def map_chart(dataframe, selected_continent, selected_year_range):
     )
 
     # Increase the size of the map
-    fig.update_layout(
+    map_fig.update_layout(
         autosize=True,  # Automatically adjust size
         height=600,  # Set a fixed height for the map (adjust as needed)
         title=dict(font=dict(size=24))  # Increase title font size for better readability
     )
 
-    return fig
+    # Return both figures
+    return map_fig, pie_fig
