@@ -125,7 +125,7 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
         co2_by_country, 
         names="country", 
         values="percentage", 
-        title=f"CO2 per Capita Distribution of Selected Countries (Average from {selected_year_range[0]} to {selected_year_range[1]})",
+        title=f"CO2 per Capita (Average from {selected_year_range[0]} to {selected_year_range[1]})",
         labels={"percentage": "CO2 per Capita (%)"}
     )
 
@@ -169,6 +169,8 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
         height=600,  # Set a fixed height for the map (adjust as needed)
         title=dict(font=dict(size=24))  # Increase title font size for better readability
     )
+
+
 
     # Return both figures
     return map_fig, pie_fig
