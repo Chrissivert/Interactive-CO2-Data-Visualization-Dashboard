@@ -3,6 +3,8 @@ import src.pages.data_exploration
 import src.service as s
 import src.pages.sidebar as sidebar
 
+import plotly.graph_objects as go
+
 # Set Streamlit configuration
 st.set_page_config(
     page_title="Interactive Data Visualization Dashboard",
@@ -15,13 +17,13 @@ st.title("Interactive Data Visualization Dashboard")
 default_file_path = "data/owid-co2-data.csv" 
 test = "data/renewable-share-energy.csv"
 test2 = "data/emissions-weighted-carbon-price.csv"
-try:
-    default_dataframe = s.load_default_file(test2)
-    st.write(":green[Default dataset loaded successfully!]")  # Inform the user that the dataset is loaded
-    dataframes = [default_dataframe]
-except FileNotFoundError:
-    st.error("Default file not found. Please ensure it exists at the specified path.")
-    dataframes = []
+# try:
+default_dataframe = s.load_default_file(default_file_path)
+#     st.write(":green[Default dataset loaded successfully!]")  # Inform the user that the dataset is loaded
+dataframes = [default_dataframe]
+# except FileNotFoundError:
+#     st.error("Default file not found. Please ensure it exists at the specified path.")
+#     dataframes = []
 
 if dataframes:
     # Display sidebar for continent, country, and year selection

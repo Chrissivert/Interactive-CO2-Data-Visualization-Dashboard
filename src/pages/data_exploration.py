@@ -1,5 +1,6 @@
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 from src.future_prediction import FuturePrediction
@@ -9,34 +10,32 @@ from sklearn.pipeline import make_pipeline
 from sklearn.ensemble import RandomForestRegressor
 
 def page(dataframes, selected_continent, selected_countries, selected_year_range, target_column):
-    st.title("Data Exploration")
+    # st.title("Data Exploration")
     
     # Existing chart and table tabs
-    tab1, tab2 = st.tabs(["📈 Chart", "📋 Table"])
+    # tab1, tab2 = st.tabs(["📈 Chart", "📋 Table"])
     
     for idx, dataframe in enumerate(dataframes):
-        with tab1:
-            # Create a two-column layout for map and pie chart
-            col1, col2 = st.columns([2, 1])  # Adjust the width ratio as needed
-            
-            # Map chart in the first column
-            with col1:
-                map_fig, pie_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column)
-                st.plotly_chart(map_fig, use_container_width=True)
-
-                # Move the scale type selection beneath the map
-                scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
-                log_scale = scale_type == "Logarithmic"
-            
-            # Pie chart in the second column
-            with col2:
-                st.plotly_chart(pie_fig, use_container_width=True)
-
-            # Line chart below the map and pie chart
-            st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+        # with tab1:
+        # Create a two-column layout for map and pie chart
+        col1, col2 = st.columns([2, 1])  # Adjust the width ratio as needed
         
-        with tab2:
-            st.write(dataframe[dataframe["country"].isin(selected_countries)])
+        # Map chart in the first column
+        with col1:
+            map_fig, pie_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column)
+            st.plotly_chart(map_fig, use_container_width=True)
+            # Move the scale type selection beneath the map
+            scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
+            log_scale = scale_type == "Logarithmic"
+        
+        # Pie chart in the second column
+        with col2:
+            st.plotly_chart(pie_fig, use_container_width=True)
+        # Line chart below the map and pie chart
+        st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+        
+        # with tab2:
+        #     st.write(dataframe[dataframe["country"].isin(selected_countries)])
 
     # Future Predictions Section
     st.header("Future Predictions")
@@ -48,8 +47,8 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
         selected_countries=selected_countries,
         years_to_predict=years_to_predict,
         scale_type=st.radio("Select Y-axis scale for prediction", ("Linear", "Logarithmic")),
-        dataframe=dataframes[0],
-        target_column=target_column  # Pass the target_column here
+        dataframe=dataframes[0]
+        # target_column=target_column  # Pass the target_column here
     )
     
     # Create tabs for different prediction models
@@ -159,7 +158,7 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
         scope=continent_scope[selected_continent],  # Set the map scope to the selected continent
         showcoastlines=True, 
         coastlinecolor="Black", 
-        projection_type="natural earth"
+        projection_type="natural earth",
     )
 
     # Increase the size of the map
