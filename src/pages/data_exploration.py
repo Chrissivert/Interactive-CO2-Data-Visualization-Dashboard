@@ -25,12 +25,15 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
             map_fig, pie_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column)
             st.plotly_chart(map_fig, use_container_width=True)
             # Move the scale type selection beneath the map
-            scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
-            log_scale = scale_type == "Logarithmic"
+            # scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
+            # log_scale = scale_type == "Logarithmic"
         
         # Pie chart in the second column
         with col2:
             st.plotly_chart(pie_fig, use_container_width=True)
+            
+        scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
+        log_scale = scale_type == "Logarithmic"
         # Line chart below the map and pie chart
         st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
         
@@ -78,13 +81,38 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     )
     
     # Add vertical lines for the Paris Agreement and COVID-19 outbreak
-    add_paris_agreement_line = st.checkbox("Show Paris Agreement (2015)", value=True)
-    add_covid_outbreak_line = st.checkbox("Show COVID-19 Outbreak (2020)", value=True)
-    
+    with st.expander("View When Different Global Events Happened:"):
+        col11, col12, col13, col14, col15 = st.columns([1,1,1,1,1])
+        add_paris_agreement_line = col11.checkbox("Show Paris Agreement", value=True)
+        add_covid_outbreak_line = col12.checkbox("Show COVID-19 Outbreak", value=True)
+        add_world_war_two_lines = col13.checkbox("Show WW2 Start & End", value=False)
+        add_world_war_one_lines = col14.checkbox("Show WW1 Start & End", value=False)
+        add_the_great_depression = col15.checkbox("Show The Great Depression Start", value=False)
+        
+        col21, col22, col23, col24, col25 = st.columns([1,1,1,1,1])
+        add_dissolution_of_the_soviet_union = col21.checkbox("Show the Dissolution of the Soviet Union", value=False)
+        add_first_man_in_space = col22.checkbox("Show First Man in Space (1961)")
+        
+    if add_first_man_in_space:
+        fig.add_vline(
+            x=1961, 
+            line=dict(color="red", dash="dash"), 
+            annotation_text="First Man in Space (1961)", 
+            annotation_position="bottom right"
+        )
+        
+    if add_dissolution_of_the_soviet_union:
+        fig.add_vline(
+            x=1991, 
+            line=dict(color="red", dash="dash"), 
+            annotation_text="Dissolution of the Soviet Union (1991)", 
+            annotation_position="top right"
+        )
+        
     if add_paris_agreement_line:
         fig.add_vline(
             x=2015, 
-            line=dict(color="blue", dash="dash"), 
+            line=dict(color="yellow", dash="dash"), 
             annotation_text="Paris Agreement (2015)", 
             annotation_position="top right"
         )
@@ -92,13 +120,51 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     if add_covid_outbreak_line:
         annotation_position = "bottom right" if add_paris_agreement_line else "top right"
         fig.add_vline(
-            x=2020, 
+            x=2019, 
             line=dict(color="red", dash="dash"), 
-            annotation_text="COVID-19 Outbreak (2020)", 
+            annotation_text="COVID-19 Outbreak (2019)", 
             annotation_position=annotation_position
+        )
+        
+    if add_world_war_two_lines:
+        # annotation_position = "bottom left" if add_world_war_two_line else "top right"
+        fig.add_vline(
+            x=1939, 
+            line=dict(color="green", dash="dash"), 
+            annotation_text="WW2 Start Point (1939)", 
+            annotation_position="bottom left" if add_world_war_two_lines else "top left"
+        )
+        fig.add_vline(
+            x=1945, 
+            line=dict(color="green", dash="dash"), 
+            annotation_text="WW2 End Point (1945)", 
+            annotation_position="bottom right" if add_world_war_two_lines else "top right"
+        )
+        
+    if add_world_war_one_lines:
+        fig.add_vline(
+            x=1914, 
+            line=dict(color="green", dash="dash"), 
+            annotation_text="WW1 Start Point (1914)", 
+            annotation_position="top left" if add_world_war_two_lines else "bottom left"
+        )
+        fig.add_vline(
+            x=1918, 
+            line=dict(color="green", dash="dash"), 
+            annotation_text="WW1 End Point (1918)", 
+            annotation_position="top right" if add_world_war_two_lines else "bottom right"
+        )
+        
+    if add_the_great_depression:
+        fig.add_vline(
+            x=1929, 
+            line=dict(color="blue", dash="dash"), 
+            annotation_text="The Great Depression (1929)"
+            # annotation_position="bottom left" if add_world_war_two_lines else "top left"
         )
 
     return fig
+
 def map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column):
     # Cap outliers in the existing dataframe
     cap_value = dataframe[target_column].quantile(0.98)
@@ -146,7 +212,7 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
         color=target_column,  # Use target_column for coloring the countries
         color_continuous_scale="Viridis",  # Color scale from light (low) to dark (high)
         labels={target_column: f"{target_column} per Capita"},
-        title=f"{target_column} per Capita over Time",
+        title=f"{target_column} Map Over Time",
         hover_name="country",  # Show country name on hover
         hover_data=[target_column],  # Show data for target_column on hover
         animation_frame="year",  # Create an animation for the years
@@ -157,7 +223,7 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
     map_fig.update_geos(
         scope=continent_scope[selected_continent],  # Set the map scope to the selected continent
         showcoastlines=True, 
-        coastlinecolor="Black", 
+        coastlinecolor="Black",
         projection_type="natural earth",
     )
 
