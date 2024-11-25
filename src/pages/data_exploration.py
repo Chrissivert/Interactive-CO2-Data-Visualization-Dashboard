@@ -37,9 +37,37 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
         with col_y_axis:
             scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
             log_scale = scale_type == "Logarithmic"
+            
+            advanced_settings = st.checkbox("Advanced Settings")
+            
+            if (advanced_settings):
+                years_to_predict = st.number_input("Insert the number of years to predict into the future", value=5, min_value=1)
+                
         # Line chart below the map and pie chart
         with col_chart:
-            st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+            if advanced_settings:
+                # st.header("Future Predictions")
+    
+                # years_to_predict = st.number_input("Insert the number of years to predict into the future", 
+                #                                 value=5, min_value=1)
+                
+                future_prediction = FuturePrediction(
+                    selected_countries=selected_countries,
+                    years_to_predict=years_to_predict,
+                    scale_type=log_scale,
+                    dataframe=dataframes[0]
+                    # target_column=target_column  # Pass the target_column here
+                )
+                
+                # Create tabs for different prediction models
+                tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
+                
+                # Generate predictions for each model
+                future_prediction.plot(tab1, LinearRegression())
+                future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=10), LinearRegression()))
+                future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
+            else:
+                st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
         
         # with tab2:
         #     st.write(dataframe[dataframe["country"].isin(selected_countries)])
@@ -95,7 +123,7 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
         
         col21, col22, col23, col24, col25 = st.columns([1,1,1,1,1])
         add_dissolution_of_the_soviet_union = col21.checkbox("Show the Dissolution of the Soviet Union", value=False)
-        add_first_man_in_space = col22.checkbox("Show First Man in Space (1961)")
+        add_first_man_in_space = col22.checkbox("Show First Man in Space")
         
     if add_first_man_in_space:
         fig.add_vline(

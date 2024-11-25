@@ -48,7 +48,7 @@ class FuturePrediction:
     def plot(self, tab, model, special_function=None):
         with tab:
             special_function
-            log_scale = self.scale_type == "Logarithmic"
+            log_scale = self.scale_type
             fig_pred = self.predict_with_model(model)
             fig_pred.update_layout(
                 title=f"Prediction for Next {self.years_to_predict} Years",
