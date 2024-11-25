@@ -32,10 +32,14 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
         with col2:
             st.plotly_chart(pie_fig, use_container_width=True)
             
-        scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
-        log_scale = scale_type == "Logarithmic"
+        col_y_axis, col_chart = st.columns([1,5])
+        
+        with col_y_axis:
+            scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
+            log_scale = scale_type == "Logarithmic"
         # Line chart below the map and pie chart
-        st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+        with col_chart:
+            st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
         
         # with tab2:
         #     st.write(dataframe[dataframe["country"].isin(selected_countries)])
