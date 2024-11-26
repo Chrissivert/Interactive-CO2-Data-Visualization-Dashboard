@@ -24,14 +24,14 @@ def display(dataframes):
 
     # Sidebar for selecting the dataset
     dataset_options = ["Renewable Energy", "CO2 Emissions", "Carbon Tax"]
-    selected_dataset = st.sidebar.selectbox("Select Dataset", dataset_options)
+    selected_column = st.sidebar.selectbox("Select Dataset", dataset_options)
 
     # Define the target column based on dataset selection
-    if selected_dataset == "Renewable Energy":
+    if selected_column == "Renewable Energy":
         target_column = "Renewables"  # Assuming 'Renewables' is the column name in the renewable dataset
-    elif selected_dataset == "CO2 Emissions":
+    elif selected_column == "CO2 Emissions":
         target_column = "co2_per_capita"  # Assuming 'co2_per_capita' is the column name in the CO2 dataset
-    elif selected_dataset == "Carbon Tax":
+    elif selected_column == "Carbon Tax":
         target_column = "Carbon_tax"  # Assuming 'carbon_tax' is the column name for the Carbon Tax dataset
 
     # Return selected continent, countries, year range, dataset, and target column
