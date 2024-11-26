@@ -43,9 +43,10 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
                     selected_countries=selected_countries,
                     years_to_predict=years_to_predict,
                     scale_type=log_scale,
-                    dataframe=dataframes[0]
-                    # target_column=target_column  # Pass the target_column here
-                )
+                    dataframe=dataframes[0],
+                    target_column=target_column  # Pass the selected metric
+    )
+
                 
                 # Create tabs for different prediction models
                 tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
