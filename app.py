@@ -13,7 +13,9 @@ st.title("Interactive Data Visualization Dashboard")
 file_mapping = {
     "co2_per_capita": "data/owid-co2-data.csv",
     "Renewables": "data/renewable-share-energy.csv",
-    "Carbon_tax": "data/emissions-weighted-carbon-price.csv"
+    "Carbon_tax": "data/emissions-weighted-carbon-price.csv",
+    "Life_expectancy": "data/life-expectancy.csv",
+    "GDP_per_capita": "data/gdp-per-capita-worldbank.csv"
 }
 
 target_column = sidebar.display_step_1()

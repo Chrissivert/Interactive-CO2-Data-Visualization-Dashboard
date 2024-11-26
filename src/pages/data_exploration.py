@@ -163,8 +163,8 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     return fig
 
 def map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column):
-    # Cap outliers in the existing dataframe
-    cap_value = dataframe[target_column].quantile(0.98)
+    st.write(selected_year_range)
+    cap_value = dataframe[target_column].quantile(1)
     dataframe[target_column] = dataframe[target_column].clip(upper=cap_value)
 
     # Filter the dataframe based on the selected year range
