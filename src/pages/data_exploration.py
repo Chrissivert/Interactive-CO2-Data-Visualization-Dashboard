@@ -200,6 +200,9 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
         "Africa": "africa",
         "Oceania": "oceania"
     }
+    
+    percentile_threshold = dataframe[target_column].quantile(0.98)
+
 
     # Create the choropleth map
     map_fig = px.choropleth(
@@ -213,8 +216,11 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
         hover_name="country",  # Show country name on hover
         hover_data=[target_column],  # Show data for target_column on hover
         animation_frame="year",  # Create an animation for the years
-        range_color=[0, filtered_dataframe[target_column].max()]  # Set the range for color scale based on filtered data
+        range_color=[0, percentile_threshold]  # Set the range for color scale up to the 98th percentile
     )
+
+
+    st.write(filtered_dataframe[target_column].max())
 
     # Apply the selected continent's scope
     map_fig.update_geos(
