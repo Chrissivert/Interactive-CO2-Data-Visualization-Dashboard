@@ -19,7 +19,8 @@ def display(dataframes):
     # Sidebar for country and year selection
     selected_country = st.sidebar.multiselect("Select Country", filtered_countries, default=filtered_countries[:2])
 
-    years = s.get_unique_years(dataframes)
+    # years = s.get_unique_years(dataframes)
+    years = s.get_year_range_from_countries(dataframes, selected_country)
     selected_year_range = st.sidebar.slider("Select Year Range", min(years), max(years), (min(years), max(years)))
 
     # Sidebar for selecting the dataset

@@ -37,6 +37,16 @@ def get_unique_years(dataframes: list[pd.DataFrame]) -> list:
     unique_years.update(dataframe['year'].unique())
   return sorted(unique_years)
 
+
+def get_year_range_from_countries(dataframes: list[pd.DataFrame], countries: list[str]):
+  unique_years = set()
+  for dataframe in dataframes:
+    unique_years.update(dataframe[dataframe["country"].isin(countries)]["year"].unique())
+  return sorted(unique_years)
+
+
+
+
 def predict_future_values_with_models(country_specific_data: pd.DataFrame, selected_metric: str, years_to_predict: int, model_to_use):
   x = country_specific_data[["year"]]
   y = country_specific_data[selected_metric]
