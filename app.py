@@ -41,9 +41,6 @@ src.pages.data_exploration.page(
 )
 
 # Visualization section
-st.header("Additional Visualizations")
 viz = HeatmapScatter(dataframes, selected_country, selected_year_range)
-st.subheader("Heatmaps")
 viz.display_heatmap()
-st.subheader("Scatterplots")
 viz.display_scatterplot()
