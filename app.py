@@ -39,11 +39,16 @@ selected_continent, selected_country, selected_year_range = sidebar.display_step
 src.pages.data_exploration.page(
     [current_dataframe], selected_continent, selected_country, selected_year_range, target_column
 )
+# Sidebar: Add checkbox or radio button for choosing the heatmap mode
+show_selected_countries_only = st.sidebar.checkbox("Show heatmap for selected countries only", value=True)
 
 # Visualization section
 st.header("Additional Visualizations")
-viz = HeatmapScatter(dataframes)
+viz = HeatmapScatter(dataframes, selected_country, selected_year_range)
+
+# Display heatmap with the user-selected option
 st.subheader("Heatmaps")
-viz.display_heatmap()
+viz.display_heatmap(show_selected_countries_only=show_selected_countries_only)
+
 st.subheader("Scatterplots")
 viz.display_scatterplot()
