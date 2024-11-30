@@ -43,9 +43,10 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
                     selected_countries=selected_countries,
                     years_to_predict=years_to_predict,
                     scale_type=log_scale,
-                    dataframe=dataframes[0]
-                    # target_column=target_column  # Pass the target_column here
-                )
+                    dataframe=dataframes[0],
+                    target_column=target_column  # Pass the selected metric
+    )
+
                 
                 # Create tabs for different prediction models
                 tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
@@ -162,8 +163,8 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     return fig
 
 def map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column):
-    # Cap outliers in the existing dataframe
-    cap_value = dataframe[target_column].quantile(0.98)
+    st.write(selected_year_range)
+    cap_value = dataframe[target_column].quantile(1)
     dataframe[target_column] = dataframe[target_column].clip(upper=cap_value)
 
     # Filter the dataframe based on the selected year range
@@ -199,6 +200,9 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
         "Africa": "africa",
         "Oceania": "oceania"
     }
+    
+    percentile_threshold = dataframe[target_column].quantile(0.98)
+
 
     # Create the choropleth map
     map_fig = px.choropleth(
@@ -212,8 +216,11 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
         hover_name="country",  # Show country name on hover
         hover_data=[target_column],  # Show data for target_column on hover
         animation_frame="year",  # Create an animation for the years
-        range_color=[0, filtered_dataframe[target_column].max()]  # Set the range for color scale based on filtered data
+        range_color=[0, percentile_threshold]  # Set the range for color scale up to the 98th percentile
     )
+
+
+    st.write(filtered_dataframe[target_column].max())
 
     # Apply the selected continent's scope
     map_fig.update_geos(
