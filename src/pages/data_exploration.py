@@ -32,13 +32,13 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
             scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
             log_scale = scale_type == "Logarithmic"
             
-            advanced_settings = st.checkbox("Advanced Settings")
+            predict_the_future = st.checkbox("Predict the Future")
             
-            if (advanced_settings):
+            if (predict_the_future):
                 years_to_predict = st.number_input("Insert the number of years to predict into the future", value=5, min_value=1)
                 
         with col_chart:
-            if advanced_settings:
+            if predict_the_future:
                 future_prediction = FuturePrediction(
                     selected_countries=selected_countries,
                     years_to_predict=years_to_predict,
