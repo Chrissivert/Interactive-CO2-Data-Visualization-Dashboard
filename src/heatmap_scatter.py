@@ -63,7 +63,7 @@ class HeatmapScatter:
                 # Create the heatmap
                 fig, ax = plt.subplots(figsize=(10, 8))
                 sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-                st.pyplot(fig)
+                st.pyplot(fig, use_container_width=False)
             else:
                 st.warning("Not enough numerical columns in the dataset to create a heatmap.")
         else:
