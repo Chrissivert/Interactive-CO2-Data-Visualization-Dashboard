@@ -184,7 +184,7 @@ class HeatmapScatter:
             fig = go.Figure()
 
             # Add scatter points for each country
-            for country in self.filtered_df["country"].unique():
+            for country in self.filtered_df[self.filter_data()["country"].isin(self.selected_country)]["country"].unique():
                 country_data = self.filtered_df[self.filtered_df["country"] == country]
                 fig.add_trace(go.Scatter(
                     x=country_data[x_variable],  # Selected X-Axis variable
