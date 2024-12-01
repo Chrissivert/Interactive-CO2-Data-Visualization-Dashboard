@@ -38,24 +38,27 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
                 years_to_predict = st.number_input("Insert the number of years to predict into the future", value=5, min_value=1)
                 
         with col_chart:
-            if predict_the_future:
-                future_prediction = FuturePrediction(
-                    selected_countries=selected_countries,
-                    years_to_predict=years_to_predict,
-                    scale_type=log_scale,
-                    dataframe=dataframes[0],
-                    target_column=target_column  # Pass the selected metric
-                )
-                
-                # Create tabs for different prediction models
-                tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
-                
-                # Generate predictions for each model
-                future_prediction.plot(tab1, LinearRegression())
-                future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=10), LinearRegression()))
-                future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
+            if len(selected_countries) == 0:
+                    st.warning("Please select at least one country to use this feature")
             else:
-                st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+                if predict_the_future:
+                    future_prediction = FuturePrediction(
+                        selected_countries=selected_countries,
+                        years_to_predict=years_to_predict,
+                        scale_type=log_scale,
+                        dataframe=dataframes[0],
+                        target_column=target_column  # Pass the selected metric
+                    )
+                    
+                    # Create tabs for different prediction models
+                    tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
+                    
+                    # Generate predictions for each model
+                    future_prediction.plot(tab1, LinearRegression())
+                    future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=10), LinearRegression()))
+                    future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
+                else:
+                    st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
 
 
 def chart(dataframe, selected_country, selected_year_range, target_column, log_scale=False):
@@ -87,7 +90,7 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
         
         col21, col22, col23, col24, col25 = st.columns([1,1,1,1,1])
         add_dissolution_of_the_soviet_union = col21.checkbox("Show the Dissolution of the Soviet Union", value=False)
-        add_first_man_in_space = col22.checkbox("Show First Man in Space")
+        add_first_man_in_space = col22.checkbox("Show First Man in Space", value=False)
         
     if add_first_man_in_space:
         fig.add_vline(
