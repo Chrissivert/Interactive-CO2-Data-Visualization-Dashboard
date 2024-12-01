@@ -11,7 +11,6 @@ st.set_page_config(
 )
 st.title("Interactive Data Visualization Dashboard")
 
-# Map and load datasets
 file_mapping = {
     "co2_per_capita": "data/co2-emissions-per-capita.csv",
     "Renewables": "data/renewable-share-energy.csv",
@@ -22,25 +21,17 @@ file_mapping = {
 
 dataframes = {name: s.load_default_file(path) for name, path in file_mapping.items()}
 
-# Sidebar step 1: Target column selection
-target_column = sidebar.display_step_1()
 
-if target_column in file_mapping:
-    current_dataframe = dataframes[target_column]
-    st.write(f"Loaded dataset for target column: **{target_column}**")
-else:
-    st.error(f"No file found for target column: **{target_column}**")
-    st.stop()
+merged_dataframe = s.merge_dataframes(dataframes)
 
-# Sidebar step 2: Filter by continent, country, year
-selected_continent, selected_country, selected_year_range = sidebar.display_step_2(current_dataframe)
+st.sidebar.header("Step 1: Select a Target Column")
+target_column = st.sidebar.selectbox("Select Target Column", merged_dataframe.columns[3:])
+selected_continent, selected_country, selected_year_range = sidebar.filtering(merged_dataframe)
 
-# Main page for data exploration
 src.pages.data_exploration.page(
-    [current_dataframe], selected_continent, selected_country, selected_year_range, target_column
+    [merged_dataframe], selected_continent, selected_country, selected_year_range, target_column
 )
 
-# Visualization section
-viz = HeatmapScatter(dataframes, selected_country, selected_year_range)
+viz = HeatmapScatter(merged_dataframe, selected_country, selected_year_range)
 viz.display_heatmap()
 viz.display_scatterplot()

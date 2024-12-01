@@ -2,55 +2,50 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
 import plotly.graph_objects as go
 import statsmodels.api as sm
 
 class HeatmapScatter:
     def __init__(self, dataframes, selected_country, selected_year_range):
+        """
+        Initialize the HeatmapScatter class.
+        
+        Parameters:
+        - dataframes: A dictionary or list of dataframes.
+        - selected_country: The country filter for the data.
+        - selected_year_range: The year range filter for the data.
+        """
         self.dataframes = dataframes
         self.selected_country = selected_country
         self.selected_year_range = selected_year_range
-        self.combined_df = self.merge_dataframes()
-        self.combined_df_filtered = self.merge_dataframes(selected_only=True)
 
-    def merge_dataframes(self, selected_only=False):
-        """Merge all datasets into a single DataFrame on 'country', 'Code', and 'year'."""
-        merged_df = None
-        for name, df in self.dataframes.items():
-            # Ensure required columns exist
-            if not {'country', 'Code', 'year'}.issubset(df.columns):
-                st.warning(f"Dataset {name} is missing required columns ('country', 'Code', 'year'). Skipping.")
-                continue
-            
-            if merged_df is None:
-                merged_df = df
-            else:
-                # Merge on common columns
-                merged_df = pd.merge(merged_df, df, on=['country', 'Code', 'year'], how='outer')
+        # Filter the data based on the selected country and year range
+        self.filtered_df = self.filter_data()
+
+    def filter_data(self):
+        """Filter the data based on selected country and year range."""
+        df = self.dataframes  # Assuming dataframes is a single dataframe or a dict of dataframes.
         
-        # Apply filtering for selected countries and year range only for scatterplot or specific visualizations
-        if selected_only and self.selected_country:
-            merged_df = merged_df[merged_df["country"].isin(self.selected_country)]
+        if isinstance(df, dict):
+            # If data is passed as a dictionary of dataframes, access the relevant dataframe
+            df = df.get(self.selected_country, pd.DataFrame())
+        
+        # Filter by year range if necessary
         if self.selected_year_range:
-            start_year, end_year = self.selected_year_range
-            merged_df = merged_df[(merged_df["year"] >= start_year) & (merged_df["year"] <= end_year)]
+            df = df[(df['year'] >= self.selected_year_range[0]) & (df['year'] <= self.selected_year_range[1])]
         
-        return merged_df
+        return df
 
     def display_heatmap(self):
-        """Generate and display a heatmap for the combined dataset, with option to show only selected countries."""
-        if self.combined_df is not None:
+        """Generate and display a heatmap for the dataset."""
+        if self.filtered_df is not None:
             st.subheader("Heatmap of columns")
             
             # Radio button to toggle between world (no filter) and selected countries
             data_source = st.radio("Select data to display:", ["World (No Filter)", "Selected Countries"])
 
             # Choose the appropriate DataFrame based on the user's selection
-            if data_source == "World (No Filter)":
-                heatmap_data = self.combined_df
-            else:
-                heatmap_data = self.combined_df_filtered
+            heatmap_data = self.filtered_df
 
             # Only include numerical columns for correlation matrix
             numerical_cols = heatmap_data.select_dtypes(include='number')
@@ -68,60 +63,60 @@ class HeatmapScatter:
                 # Create the heatmap
                 fig, ax = plt.subplots(figsize=(10, 8))
                 sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-                st.pyplot(fig)
+                st.pyplot(fig, use_container_width=False)
             else:
-                st.warning("Not enough numerical columns in the combined dataset to create a heatmap.")
+                st.warning("Not enough numerical columns in the dataset to create a heatmap.")
         else:
             st.error("No data available to display a heatmap.")
 
-    def display_scatterplot(self):
-        """Generate and display scatterplot with OLS trendline for the selected data."""
-        if self.combined_df_filtered is not None:
-            st.subheader("Scatterplot with OLS Trendline")
+    # def display_scatterplot(self):
+    #     """Generate and display scatterplot with OLS trendline for the selected data."""
+    #     if self.filtered_df is not None:
+    #         st.subheader("Scatterplot with OLS Trendline")
 
-            # Dropdown for X and Y-axis selection
-            x_variable = st.selectbox("Select X-axis", self.combined_df_filtered.select_dtypes(include='number').columns, index=0, key="scatter_x")
-            y_variable = st.selectbox("Select Y-axis", self.combined_df_filtered.select_dtypes(include='number').columns, index=1, key="scatter_y")
+    #         # Dropdown for X and Y-axis selection
+    #         x_variable = st.selectbox("Select X-axis", self.filtered_df.select_dtypes(include='number').columns, index=0, key="scatter_x")
+    #         y_variable = st.selectbox("Select Y-axis", self.filtered_df.select_dtypes(include='number').columns, index=1, key="scatter_y")
 
-            fig = go.Figure()
+    #         fig = go.Figure()
 
-            # Add scatter points for each country
-            for country in self.combined_df_filtered["country"].unique():
-                country_data = self.combined_df_filtered[self.combined_df_filtered["country"] == country]
-                fig.add_trace(go.Scatter(
-                    x=country_data[x_variable],  # Selected X-Axis variable
-                    y=country_data[y_variable],  # Selected Y-Axis variable
-                    mode="markers",  # Only markers (no lines)
-                    name=f"{country} {x_variable} vs {y_variable}",
-                    marker=dict(size=8)  # Adjust size of points for visibility
-                ))
+    #         # Add scatter points for each country
+    #         for country in self.filtered_df["country"].unique():
+    #             country_data = self.filtered_df[self.filtered_df["country"] == country]
+    #             fig.add_trace(go.Scatter(
+    #                 x=country_data[x_variable],  # Selected X-Axis variable
+    #                 y=country_data[y_variable],  # Selected Y-Axis variable
+    #                 mode="markers",  # Only markers (no lines)
+    #                 name=f"{country} {x_variable} vs {y_variable}",
+    #                 marker=dict(size=8)  # Adjust size of points for visibility
+    #             ))
 
-            # --- Add OLS Trendline ---
-            X = self.combined_df_filtered[[x_variable]]  # Independent variable (selected X-Axis)
-            X = sm.add_constant(X)  # Add constant term for OLS (intercept)
-            y = self.combined_df_filtered[y_variable]  # Dependent variable (selected Y-Axis)
+    #         # --- Add OLS Trendline ---
+    #         X = self.filtered_df[[x_variable]]  # Independent variable (selected X-Axis)
+    #         X = sm.add_constant(X)  # Add constant term for OLS (intercept)
+    #         y = self.filtered_df[y_variable]  # Dependent variable (selected Y-Axis)
 
-            model = sm.OLS(y, X).fit()
-            trendline = model.predict(X)  # Predicted values (trendline)
+    #         model = sm.OLS(y, X).fit()
+    #         trendline = model.predict(X)  # Predicted values (trendline)
 
-            # Add the OLS trendline to the scatter plot
-            fig.add_trace(go.Scatter(
-                x=self.combined_df_filtered[x_variable],  # Selected X-Axis for OLS line
-                y=trendline,  # Predicted values
-                mode="lines",
-                name="OLS Trendline",
-                line=dict(color="white", dash="dash")  # Set line color to white (or any other color)
-            ))
+    #         # Add the OLS trendline to the scatter plot
+    #         fig.add_trace(go.Scatter(
+    #             x=self.filtered_df[x_variable],  # Selected X-Axis for OLS line
+    #             y=trendline,  # Predicted values
+    #             mode="lines",
+    #             name="OLS Trendline",
+    #             line=dict(color="white", dash="dash")  # Set line color to white (or any other color)
+    #         ))
 
-            # Update layout to improve aesthetics
-            fig.update_layout(
-                template="plotly_dark",
-                title=f"{x_variable} vs {y_variable} with OLS Trendline",
-                xaxis_title=x_variable,
-                yaxis_title=y_variable
-            )
+    #         # Update layout to improve aesthetics
+    #         fig.update_layout(
+    #             template="plotly_dark",
+    #             title=f"{x_variable} vs {y_variable} with OLS Trendline",
+    #             xaxis_title=x_variable,
+    #             yaxis_title=y_variable
+    #         )
 
-            # Display the plot
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("No data available for the selected criteria to create a scatterplot.")
+    #         # Display the plot
+    #         st.plotly_chart(fig, use_container_width=True)
+    #     else:
+    #         st.warning("No data available for the selected criteria to create a scatterplot.")

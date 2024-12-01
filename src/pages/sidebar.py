@@ -20,8 +20,7 @@ def display_step_1():
 
     return target_column
 
-def display_step_2(dataframe):
-    """Step 2: Allow the user to filter the selected dataset."""
+def filtering(dataframe):
     st.sidebar.header("Step 2: Filter Data")
     continents = s.get_unique_continents([dataframe])
     countries = s.get_unique_countries([dataframe])
@@ -33,7 +32,7 @@ def display_step_2(dataframe):
     else:
         filtered_countries = s.get_countries_by_continent([dataframe], selected_continent)
 
-    selected_country = st.sidebar.multiselect("Select Country", filtered_countries, default=filtered_countries[:2])
+    selected_country = st.sidebar.multiselect("Select Country", filtered_countries, default=filtered_countries[:0])
 
     years = s.get_unique_years([dataframe])
     selected_year_range = st.sidebar.slider("Select Year Range", min(years), max(years), (min(years), max(years)))
