@@ -72,6 +72,7 @@ class HeatmapScatter:
     #         st.error("No data available to display a heatmap.")
     
     def display_heatmap(self):
+      if len(self.selected_country) == 0:
         """Generate and display a heatmap for the dataset using Plotly."""
         if self.filtered_df is not None:
             st.subheader("Heatmap of columns")
@@ -178,8 +179,10 @@ class HeatmapScatter:
             st.subheader("Scatterplot with OLS Trendline")
 
             # Dropdown for X and Y-axis selection
-            x_variable = st.selectbox("Select X-axis", self.filtered_df.select_dtypes(include='number').columns, index=0, key="scatter_x")
-            y_variable = st.selectbox("Select Y-axis", self.filtered_df.select_dtypes(include='number').columns, index=1, key="scatter_y")
+            col1, col2 = st.columns([1,1])
+            
+            x_variable = col1.selectbox("Select X-axis", self.filtered_df.select_dtypes(include='number').columns, index=0, key="scatter_x")
+            y_variable = col2.selectbox("Select Y-axis", self.filtered_df.select_dtypes(include='number').columns, index=1, key="scatter_y")
 
             fig = go.Figure()
 
