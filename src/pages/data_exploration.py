@@ -15,11 +15,11 @@ def page(dataframes, selected_continent, selected_countries, selected_year_range
         col1, col2 = st.columns([2, 1])  
         
         with col1:
-            map_fig, pie_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column)
+            map_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column)
             st.plotly_chart(map_fig, use_container_width=True)
         
-        with col2:
-            st.plotly_chart(pie_fig, use_container_width=True)
+        # with col2:
+        #     st.plotly_chart(pie_fig, use_container_width=True)
             
         col_y_axis, col_chart = st.columns([1,5])
         
@@ -163,13 +163,89 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     return fig
 
 def map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column):
-    st.write(selected_year_range)
-    cap_value = dataframe[target_column].quantile(1)
-    dataframe[target_column] = dataframe[target_column].clip(upper=cap_value)
-
     # Filter the dataframe based on the selected year range
-    filtered_dataframe = dataframe[(dataframe["year"] >= selected_year_range[0]) & 
-                                   (dataframe["year"] <= selected_year_range[1])]
+    year_dataframe = dataframe[
+        (dataframe["year"] >= selected_year_range[0]) & 
+        (dataframe["year"] <= selected_year_range[1])
+    ]
+    
+    # Sort the dataframe by year
+    year_dataframe = year_dataframe.sort_values(by="year")
+
+    # Calculate the 98th percentile for color scaling
+    percentile_threshold = year_dataframe[target_column].quantile(0.98)
+
+    # Create the choropleth map
+    map_fig = px.choropleth(
+        year_dataframe,  # Use the sorted dataframe
+        locations="country",  # Column with country names
+        locationmode="country names",  # Use country names for the map
+        color=target_column,  # Use target_column for coloring the countries
+        color_continuous_scale="Viridis",  # Color scale from light (low) to dark (high)
+        labels={target_column: f"{target_column} per Capita"},
+        title=f"{target_column} Map Over Time",
+        hover_name="country",  # Show country name on hover
+        hover_data=[target_column],  # Show data for target_column on hover
+        animation_frame="year",  # Create an animation for the years
+        range_color=[0, percentile_threshold]  # Set the range for color scale up to the 98th percentile
+    )
+
+    # Set up the map's continent scope
+    continent_scope = {
+        "World": "world",
+        "Europe": "europe",
+        "Asia": "asia",
+        "North America": "north america",
+        "South America": "south america",
+        "Africa": "africa",
+        "USA": "usa"
+    }
+
+    # Apply the selected continent's scope
+    map_fig.update_geos(
+        scope=continent_scope[selected_continent],  # Set the map scope to the selected continent
+        showcoastlines=True, 
+        coastlinecolor="Black",
+        projection_type="natural earth",
+    )
+
+    # Add a scattergeo trace to highlight selected countries with red markers
+    selected_countries_df = dataframe[dataframe["country"].isin(selected_countries)]
+
+    scatter_trace = go.Scattergeo(
+        locations=selected_countries_df["country"],
+        locationmode="country names",
+        mode="markers",  # Only markers, no text labels
+        marker=dict(
+            size=4,  # Adjust the size of the markers
+            color="red",  # Set the color to red for selected countries
+            line=dict(width=4, color="red"),  # Border color for selected countries (red)
+        ),
+        showlegend=False  # Hide the legend for the markers
+    )
+
+    # Add the scatter trace to the map
+    map_fig.add_trace(scatter_trace)
+
+    # Increase the size of the map
+    map_fig.update_layout(
+        autosize=True,  # Automatically adjust size
+        height=600,  # Set a fixed height for the map (adjust as needed)
+        title=dict(font=dict(size=24))  # Increase title font size for better readability
+    )
+
+    return map_fig
+
+
+
+
+
+def pie_chart(dataframe, selected_year_range, selected_countries, target_column):
+    # Filter the dataframe based on the selected year range
+    filtered_dataframe = dataframe[
+        (dataframe["year"] >= selected_year_range[0]) & 
+        (dataframe["year"] <= selected_year_range[1])
+    ]
 
     # Filter further for the selected countries
     filtered_countries_df = filtered_dataframe[filtered_dataframe["country"].isin(selected_countries)]
@@ -190,51 +266,4 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
         labels={"percentage": f"{target_column} (%)"}
     )
 
-    # Set up the map's continent scope
-    continent_scope = {
-        "World": "world",
-        "Europe": "europe",
-        "Asia": "asia",
-        "North America": "north america",
-        "South America": "south america",
-        "Africa": "africa",
-        "Oceania": "oceania"
-    }
-    
-    percentile_threshold = dataframe[target_column].quantile(0.98)
-
-
-    # Create the choropleth map
-    map_fig = px.choropleth(
-        filtered_dataframe,
-        locations="country",  # Column with country names
-        locationmode="country names",  # Use country names for the map
-        color=target_column,  # Use target_column for coloring the countries
-        color_continuous_scale="Viridis",  # Color scale from light (low) to dark (high)
-        labels={target_column: f"{target_column} per Capita"},
-        title=f"{target_column} Map Over Time",
-        hover_name="country",  # Show country name on hover
-        hover_data=[target_column],  # Show data for target_column on hover
-        animation_frame="year",  # Create an animation for the years
-        range_color=[0, percentile_threshold]  # Set the range for color scale up to the 98th percentile
-    )
-
-
-    st.write(filtered_dataframe[target_column].max())
-
-    # Apply the selected continent's scope
-    map_fig.update_geos(
-        scope=continent_scope[selected_continent],  # Set the map scope to the selected continent
-        showcoastlines=True, 
-        coastlinecolor="Black",
-        projection_type="natural earth",
-    )
-
-    # Increase the size of the map
-    map_fig.update_layout(
-        autosize=True,  # Automatically adjust size
-        height=600,  # Set a fixed height for the map (adjust as needed)
-        title=dict(font=dict(size=24))  # Increase title font size for better readability
-    )
-
-    return map_fig, pie_fig
+    return pie_fig

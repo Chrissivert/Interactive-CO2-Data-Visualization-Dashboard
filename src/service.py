@@ -25,6 +25,25 @@ def get_metrics(dataframes: list[pd.DataFrame]) -> dict:
       
   return metrics
 
+def merge_dataframes(dataframes: dict) -> pd.DataFrame:
+    """Merge all datasets into a single DataFrame on 'country' and 'year'."""
+    merged_df = None
+    
+    for name, df in dataframes.items():  # Iterate over dictionary items
+        # Ensure required columns exist
+        if not {'country', 'year'}.issubset(df.columns):
+            st.warning(f"Dataset {name} is missing required columns ('country', 'year'). Skipping.")
+            continue
+        
+        if merged_df is None:
+            merged_df = df
+        else:
+            # Merge on common columns ('country', 'year')
+            merged_df = pd.merge(merged_df, df, on=['country', 'year', 'Code'], how='outer')
+    
+    return merged_df
+
+
 def get_unique_countries(dataframes: list[pd.DataFrame]) -> list:
   unique_countries = set()
   for dataframe in dataframes:
