@@ -21,12 +21,8 @@ file_mapping = {
 
 dataframes = {name: s.load_default_file(path) for name, path in file_mapping.items()}
 
-for name, df in dataframes.items():
-    st.write(f"{name}: Type: {type(df)}")
 
 merged_dataframe = s.merge_dataframes(dataframes)
-
-st.write(merged_dataframe)
 
 st.sidebar.header("Step 1: Select a Target Column")
 target_column = st.sidebar.selectbox("Select Target Column", merged_dataframe.columns[3:])
