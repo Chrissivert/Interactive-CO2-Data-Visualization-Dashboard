@@ -34,4 +34,4 @@ src.pages.data_exploration.page(
 
 viz = HeatmapScatter(merged_dataframe, selected_country, selected_year_range)
 viz.display_heatmap()
-viz.display_scatterplot()
+# viz.display_scatterplot()
