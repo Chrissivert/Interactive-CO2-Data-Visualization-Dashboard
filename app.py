@@ -11,7 +11,6 @@ st.set_page_config(
 )
 st.title("Interactive Data Visualization Dashboard")
 
-# Step 1: Load and merge datasets
 file_mapping = {
     "co2_per_capita": "data/co2-emissions-per-capita.csv",
     "Renewables": "data/renewable-share-energy.csv",
@@ -31,8 +30,6 @@ st.write(merged_dataframe)
 
 st.sidebar.header("Step 1: Select a Target Column")
 target_column = st.sidebar.selectbox("Select Target Column", merged_dataframe.columns[3:])
-
-# Step 3: Pass the merged dataframe to data exploration and visualizations
 selected_continent, selected_country, selected_year_range = sidebar.filtering(merged_dataframe)
 
 src.pages.data_exploration.page(
