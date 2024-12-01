@@ -94,7 +94,7 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
             x=1961, 
             line=dict(color="red", dash="dash"), 
             annotation_text="First Man in Space (1961)", 
-            annotation_position="bottom right"
+            annotation_position="top right"
         )
         
     if add_dissolution_of_the_soviet_union:
@@ -102,7 +102,7 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
             x=1991, 
             line=dict(color="red", dash="dash"), 
             annotation_text="Dissolution of the Soviet Union (1991)", 
-            annotation_position="top right"
+            annotation_position="bottom right"
         )
         
     if add_paris_agreement_line:
