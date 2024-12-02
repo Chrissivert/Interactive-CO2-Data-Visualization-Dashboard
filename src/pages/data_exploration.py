@@ -12,53 +12,55 @@ from sklearn.ensemble import RandomForestRegressor
 def page(dataframes, selected_continent, selected_countries, selected_year_range, target_column):
     
     for idx, dataframe in enumerate(dataframes):
-        # Create two columns, one for the map and one for the pie chart
-        col1, col2 = st.columns([2, 1])  # Adjust the widths as needed
-        
-        with col1:
-            # Map chart
+        if len(selected_countries) == 0:
             map_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column)
             st.plotly_chart(map_fig, use_container_width=True)
-        
-        with col2:
-            # Pie chart
-            pie_fig = pie_chart(dataframe, selected_year_range, selected_countries, target_column)
-            st.plotly_chart(pie_fig, use_container_width=True)
+        else:
+            col1, col2 = st.columns([2, 1])
             
-        # Now, set up the other part for the line chart and prediction logic as before
-        col_y_axis, col_chart = st.columns([1, 5])
-        
-        with col_y_axis:
-            scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
-            log_scale = scale_type == "Logarithmic"
+            with col1:
+                # Map chart
+                map_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column)
+                st.plotly_chart(map_fig, use_container_width=True)
             
-            predict_the_future = st.checkbox("Predict the Future")
+            with col2:
+                # Pie chart
+                pie_fig = pie_chart(dataframe, selected_year_range, selected_countries, target_column)
+                st.plotly_chart(pie_fig, use_container_width=True)
             
-            if (predict_the_future):
-                years_to_predict = st.number_input("Insert the number of years to predict into the future", value=5, min_value=1)
+            col_y_axis, col_chart = st.columns([1, 5])
+            
+            with col_y_axis:
+                scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
+                log_scale = scale_type == "Logarithmic"
                 
-        with col_chart:
-            if len(selected_countries) == 0:
-                    st.warning("Please select at least one country to use this feature")
-            else:
-                if predict_the_future:
-                    future_prediction = FuturePrediction(
-                        selected_countries=selected_countries,
-                        years_to_predict=years_to_predict,
-                        scale_type=log_scale,
-                        dataframe=dataframes[0],
-                        target_column=target_column  # Pass the selected metric
-                    )
+                predict_the_future = st.checkbox("Predict the Future")
+                
+                if (predict_the_future):
+                    years_to_predict = st.number_input("Insert the number of years to predict into the future", value=5, min_value=1)
                     
-                    # Create tabs for different prediction models
-                    tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
-                    
-                    # Generate predictions for each model
-                    future_prediction.plot(tab1, LinearRegression())
-                    future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=10), LinearRegression()))
-                    future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
+            with col_chart:
+                if len(selected_countries) == 0:
+                        st.warning("Please select at least one country to use this feature")
                 else:
-                    st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+                    if predict_the_future:
+                        future_prediction = FuturePrediction(
+                            selected_countries=selected_countries,
+                            years_to_predict=years_to_predict,
+                            scale_type=log_scale,
+                            dataframe=dataframes[0],
+                            target_column=target_column 
+                        )
+                        
+                        # Create tabs for different prediction models
+                        tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
+                        
+                        # Generate predictions for each model
+                        future_prediction.plot(tab1, LinearRegression())
+                        future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=10), LinearRegression()))
+                        future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
+                    else:
+                        st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
 
 
 def chart(dataframe, selected_country, selected_year_range, target_column, log_scale=False):
@@ -237,10 +239,6 @@ def map_chart(dataframe, selected_continent, selected_year_range, selected_count
     )
 
     return map_fig
-
-
-
-
 
 def pie_chart(dataframe, selected_year_range, selected_countries, target_column):
     # Filter the dataframe based on the selected year range
