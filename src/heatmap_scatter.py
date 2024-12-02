@@ -136,6 +136,9 @@ class HeatmapScatter:
         if len(self.selected_country) != 0:
             if self.filtered_df is not None:
                 st.subheader("Scatterplot with OLS Trendline")
+                
+                # TODO: Discuss if we want this!
+                self.filtered_df = self.filtered_df.dropna()
 
                 # Dropdown for X and Y-axis selection
                 col1, col2 = st.columns([1,1])
