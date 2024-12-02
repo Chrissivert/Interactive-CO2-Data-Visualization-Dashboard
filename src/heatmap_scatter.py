@@ -70,108 +70,66 @@ class HeatmapScatter:
     #             st.warning("Not enough numerical columns in the dataset to create a heatmap.")
     #     else:
     #         st.error("No data available to display a heatmap.")
-    
+            
     def display_heatmap(self):
-      if len(self.selected_country) == 0:
-        """Generate and display a heatmap for the dataset using Plotly."""
+        data_source = st.radio("Select data to display:", ["World (No Filter)", "Selected Countries"])
+        if data_source == "World (No Filter)":
+            self.display_specific_heatmap(self.filtered_df)
+        else:
+            if len(self.selected_country) == 0:
+                st.warning("Please select at least one country to use this feature")
+            else:
+                self.display_specific_heatmap(self.filtered_df[self.filter_data()["country"].isin(self.selected_country)])
+            
+            
+    def display_specific_heatmap(self, data):
         if self.filtered_df is not None:
             st.subheader("Heatmap of columns")
-            
-            # Radio button to toggle between world (no filter) and selected countries
-            data_source = st.radio("Select data to display:", ["World (No Filter)", "Selected Countries"])
             
             tab1, tab2 = st.tabs(["Correlation Heatmap", "Raw Data"])
             
             # World data heatmap
-            if data_source == "World (No Filter)":
-                # Choose the appropriate DataFrame based on the user's selection
-                heatmap_data = self.filtered_df
+            # Choose the appropriate DataFrame based on the user's selection
+            heatmap_data = data
+            
+            # Only include numerical columns for correlation matrix
+            numerical_cols = heatmap_data.select_dtypes(include='number')
+            
+            if numerical_cols.shape[1] > 1:
+                # Calculate the correlation matrix
+                correlation_matrix = numerical_cols.corr()
+                # st.write("Correlation Matrix:")
                 
-                # Only include numerical columns for correlation matrix
-                numerical_cols = heatmap_data.select_dtypes(include='number')
+                # Checkbox to show/hide raw data
+                # show_raw_data = st.checkbox("Show Raw Data", value=False)
+                # if show_raw_data:
+                tab2.dataframe(heatmap_data)  # Display the raw data table
                 
-                if numerical_cols.shape[1] > 1:
-                    # Calculate the correlation matrix
-                    correlation_matrix = numerical_cols.corr()
-                    # st.write("Correlation Matrix:")
+                with tab1: 
+                    # Create the heatmap with Plotly
+                    fig = go.Figure(data=go.Heatmap(
+                        z=correlation_matrix.values,
+                        x=correlation_matrix.columns,
+                        y=correlation_matrix.columns,
+                        colorscale='RdBu',  # Color scale
+                        colorbar=dict(title="Correlation"),
+                        hoverongaps=False  # Hide gaps on hover,
+                    ))
                     
-                    # Checkbox to show/hide raw data
-                    # show_raw_data = st.checkbox("Show Raw Data", value=False)
-                    # if show_raw_data:
-                    tab2.dataframe(heatmap_data)  # Display the raw data table
-                       
-                    with tab1: 
-                        # Create the heatmap with Plotly
-                        fig = go.Figure(data=go.Heatmap(
-                            z=correlation_matrix.values,
-                            x=correlation_matrix.columns,
-                            y=correlation_matrix.columns,
-                            colorscale='RdBu',  # Color scale
-                            colorbar=dict(title="Correlation"),
-                            hoverongaps=False  # Hide gaps on hover,
-                        ))
-                        
-                        # Update layout for better visualization
-                        fig.update_layout(
-                            title="Correlation Heatmap",
-                            xaxis_title="Columns",
-                            yaxis_title="Columns",
-                            autosize=True,
-                            height=700,  # Set height of the heatmap
-                            width=900   # Set width of the heatmap
-                        )
-                        
-                        # Display the Plotly figure
-                        st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.warning("Not enough numerical columns in the dataset to create a heatmap.")
+                    # Update layout for better visualization
+                    fig.update_layout(
+                        title="Correlation Heatmap",
+                        xaxis_title="Columns",
+                        yaxis_title="Columns",
+                        autosize=True,
+                        height=700,  # Set height of the heatmap
+                        width=900   # Set width of the heatmap
+                    )
                     
-            # Selected countries heatmap
+                    # Display the Plotly figure
+                    st.plotly_chart(fig, use_container_width=True)
             else:
-                if len(self.selected_country) == 0:
-                    st.warning("Please select at least one country to use this feature")
-                else:
-                    heatmap_data = self.filtered_df[self.filter_data()["country"].isin(self.selected_country)]
-                    # Only include numerical columns for correlation matrix
-                    numerical_cols = heatmap_data.select_dtypes(include='number')
-                    
-                    if numerical_cols.shape[1] > 1:
-                        # Calculate the correlation matrix
-                        correlation_matrix = numerical_cols.corr()
-                        # st.write("Correlation Matrix:")
-                        
-                        # Checkbox to show/hide raw data
-                        # show_raw_data = st.checkbox("Show Raw Data", value=False)
-                        # if show_raw_data:
-                        tab2.dataframe(heatmap_data)  # Display the raw data table
-                            
-                        with tab1:
-                            # Create the heatmap with Plotly
-                            fig = go.Figure(data=go.Heatmap(
-                                z=correlation_matrix.values,
-                                x=correlation_matrix.columns,
-                                y=correlation_matrix.columns,
-                                colorscale='RdBu',  # Color scale
-                                colorbar=dict(title="Correlation"),
-                                hoverongaps=False  # Hide gaps on hover,
-                            ))
-                            
-                            # Update layout for better visualization
-                            fig.update_layout(
-                                title="Correlation Heatmap",
-                                xaxis_title="Columns",
-                                yaxis_title="Columns",
-                                autosize=True,
-                                height=700,  # Set height of the heatmap
-                                width=900   # Set width of the heatmap
-                            )
-                            
-                            # Display the Plotly figure
-                            st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.warning("Not enough numerical columns in the dataset to create a heatmap.")
-        else:
-            st.error("No data available to display a heatmap.")
+                st.warning("Not enough numerical columns in the dataset to create a heatmap.")
 
     def display_scatterplot(self):
         """Generate and display scatterplot with OLS trendline for the selected data."""
