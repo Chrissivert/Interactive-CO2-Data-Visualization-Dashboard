@@ -46,28 +46,41 @@ def filtering(dataframe):
         (min(years), max(years))
     )
 
-    # Filter by additional numerical attributes
-    st.sidebar.subheader("Filter by Attributes")
+    # Show/Hide Attributes Button
+    show_attributes = st.sidebar.button("Show/Hide Attributes")
 
-    life_expectancy_min, life_expectancy_max = st.sidebar.slider(
-        "Filter Life Expectancy", 
-        int(dataframe["Life_expectancy"].min()), 
-        int(dataframe["Life_expectancy"].max()), 
-        (int(dataframe["Life_expectancy"].min()), int(dataframe["Life_expectancy"].max()))
-    )
+    # Use session state to track visibility
+    if "attributes_visible" not in st.session_state:
+        st.session_state.attributes_visible = False
 
+    if show_attributes:
+        st.session_state.attributes_visible = not st.session_state.attributes_visible
 
-    co2_min, co2_max = st.sidebar.slider(
-    "Filter CO₂ per Capita", 
-    int(dataframe["co2_per_capita"].min()), 
-    30,  # Hardcode the maximum value to 30
-    (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
-)
+    if st.session_state.attributes_visible:
+        st.sidebar.subheader("Filter by Attributes")
+
+        life_expectancy_min, life_expectancy_max = st.sidebar.slider(
+            "Life Expectancy in years", 
+            int(dataframe["Life_expectancy"].min()), 
+            int(dataframe["Life_expectancy"].max()), 
+            (int(dataframe["Life_expectancy"].min()), int(dataframe["Life_expectancy"].max()))
+        )
+
+        co2_min, co2_max = st.sidebar.slider(
+            "CO₂ per Capita in tons", 
+            int(dataframe["co2_per_capita"].min()), 
+            30,  # Hardcode the maximum value to 30
+            (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
+        )
+
+    else:
+        life_expectancy_min, life_expectancy_max = int(dataframe["Life_expectancy"].min()), int(dataframe["Life_expectancy"].max())
+        co2_min, co2_max = int(dataframe["co2_per_capita"].min()), 30
 
     # Apply filters to the dataframe
     filtered_data = dataframe[
         (dataframe["Life_expectancy"] >= life_expectancy_min) & 
-        (dataframe["Life_expectancy"] <= life_expectancy_max) &
+        (dataframe["Life_expectancy"] <= life_expectancy_max) & 
         (dataframe["co2_per_capita"] >= co2_min) & 
         (dataframe["co2_per_capita"] <= co2_max)
     ]
@@ -84,4 +97,5 @@ def filtering(dataframe):
         filtered_data,
         selected_continent, 
         selected_country, 
-        selected_year_range)
+        selected_year_range
+    )
