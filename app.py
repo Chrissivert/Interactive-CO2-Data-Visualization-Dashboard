@@ -17,7 +17,6 @@ file_mapping = {
     "Carbon_tax": "data/emissions-weighted-carbon-price.csv",
     "Life_expectancy": "data/life-expectancy.csv",
     "GDP_per_capita": "data/gdp-per-capita-worldbank.csv",
-    "Coal_consumption_per_capita": "data/coal-consumption-per-capita.csv"
 }
 
 dataframes = {name: s.load_default_file(path) for name, path in file_mapping.items()}
