@@ -30,7 +30,7 @@ target_column = st.sidebar.selectbox("Select Target Column", merged_dataframe.co
 filted_dataframe, selected_continent, selected_country, selected_year_range = sidebar.filtering(merged_dataframe)
 
 src.pages.data_exploration.page(
-    [filted_dataframe], selected_continent, selected_country, selected_year_range, target_column
+    [filted_dataframe], [merged_dataframe], selected_continent, selected_country, selected_year_range, target_column
 )
 
 viz = HeatmapScatter(merged_dataframe, selected_country, selected_year_range)
