@@ -17,6 +17,8 @@ def page(filtered_dataframe, merged_dataframe, selected_continent, selected_coun
         if len(selected_countries) == 0:
             # Call map_chart with both filtered and merged dataframes
             map_fig = map_chart(merged_dataframe, dataframe, selected_continent, selected_year_range, selected_countries, target_column)
+            if map_fig is None:
+                    return
             st.plotly_chart(map_fig, use_container_width=True)
         else:
             # Create two columns for displaying map and pie chart
@@ -25,6 +27,9 @@ def page(filtered_dataframe, merged_dataframe, selected_continent, selected_coun
             with col1:
                 # Map chart
                 map_fig = map_chart(merged_dataframe, dataframe, selected_continent, selected_year_range, selected_countries, target_column)
+
+                if map_fig is None:
+                    return
                 st.plotly_chart(map_fig, use_container_width=True)
             
             with col2:
@@ -170,6 +175,11 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
 
     return fig
 def map_chart(merged_dataframe, filtered_dataframe, selected_continent, selected_year_range, selected_countries, target_column):
+    # Check if the filtered_dataframe is empty after applying the selected filters
+    if filtered_dataframe.empty:
+        st.warning("None of the selected countries fit the filters.")
+        return None
+
     # Filter the filtered_dataframe based on the selected year range
     year_dataframe = filtered_dataframe[
         (filtered_dataframe["year"] >= selected_year_range[0]) & 
