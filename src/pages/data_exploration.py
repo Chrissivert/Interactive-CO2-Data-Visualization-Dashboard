@@ -8,10 +8,10 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.ensemble import RandomForestRegressor
-def page(merged_dataframes, filtered_dataframes, selected_continent, selected_countries, selected_year_range, target_column):
+
+def page(dataframes, selected_continent, selected_countries, selected_year_range, target_column):
     
-    for idx, dataframe in enumerate(merged_dataframes):  # Use merged_dataframes for the full data
-        # Use merged dataframe for map chart
+    for idx, dataframe in enumerate(dataframes):
         if len(selected_countries) == 0:
             map_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column)
             st.plotly_chart(map_fig, use_container_width=True)
@@ -19,13 +19,13 @@ def page(merged_dataframes, filtered_dataframes, selected_continent, selected_co
             col1, col2 = st.columns([2, 1])
             
             with col1:
-                # Use merged dataframe for map chart
+                # Map chart
                 map_fig = map_chart(dataframe, selected_continent, selected_year_range, selected_countries, target_column)
                 st.plotly_chart(map_fig, use_container_width=True)
             
             with col2:
-                # Use filtered dataframe for pie chart (or other visualizations)
-                pie_fig = pie_chart(filtered_dataframes[idx], selected_year_range, selected_countries, target_column)
+                # Pie chart
+                pie_fig = pie_chart(dataframe, selected_year_range, selected_countries, target_column)
                 st.plotly_chart(pie_fig, use_container_width=True)
             
             col_y_axis, col_chart = st.columns([1, 5])
@@ -41,14 +41,14 @@ def page(merged_dataframes, filtered_dataframes, selected_continent, selected_co
                     
             with col_chart:
                 if len(selected_countries) == 0:
-                    st.warning("Please select at least one country to use this feature")
+                        st.warning("Please select at least one country to use this feature")
                 else:
                     if predict_the_future:
                         future_prediction = FuturePrediction(
                             selected_countries=selected_countries,
                             years_to_predict=years_to_predict,
                             scale_type=log_scale,
-                            dataframe=filtered_dataframes[idx],  # Use filtered dataframe for prediction
+                            dataframe=dataframes[0],
                             target_column=target_column 
                         )
                         
@@ -60,7 +60,8 @@ def page(merged_dataframes, filtered_dataframes, selected_continent, selected_co
                         future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=10), LinearRegression()))
                         future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
                     else:
-                        st.plotly_chart(chart(filtered_dataframes[idx], selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+                        st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+
 
 def chart(dataframe, selected_country, selected_year_range, target_column, log_scale=False):
     filtered_data = dataframe[(dataframe["country"].isin(selected_country)) 
