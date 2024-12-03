@@ -38,6 +38,7 @@ class HeatmapScatter:
         return df
 
     def display_heatmap(self):
+        st.subheader("Heatmap of columns")
         data_source = st.radio("Select data to display:", ["World (No Filter)", "Selected Countries"])
         if data_source == "World (No Filter)":
             self.display_specific_heatmap(self.filtered_df)
@@ -49,9 +50,7 @@ class HeatmapScatter:
             
             
     def display_specific_heatmap(self, data):
-        if self.filtered_df is not None:
-            st.subheader("Heatmap of columns")
-            
+        if self.filtered_df is not None:            
             tab1, tab2 = st.tabs(["Correlation Heatmap", "Raw Data"])
             
             # World data heatmap

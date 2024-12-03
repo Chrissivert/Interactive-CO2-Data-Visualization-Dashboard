@@ -59,6 +59,7 @@ def filtering(dataframe):
     if st.session_state.attributes_visible:
         st.sidebar.subheader("Filter by Attributes")
 
+        # Life Expectancy filter
         life_expectancy_min, life_expectancy_max = st.sidebar.slider(
             "Life Expectancy in years", 
             int(dataframe["Life_expectancy"].min()), 
@@ -66,23 +67,57 @@ def filtering(dataframe):
             (int(dataframe["Life_expectancy"].min()), int(dataframe["Life_expectancy"].max()))
         )
 
+        # CO₂ per Capita filter
         co2_min, co2_max = st.sidebar.slider(
-            "CO₂ per Capita in tons", 
+            "CO₂ per Capita in tonnes", 
             int(dataframe["co2_per_capita"].min()), 
             30,  # Hardcode the maximum value to 30
             (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
         )
 
+        # GDP per capita filter
+        gdp_min, gdp_max = st.sidebar.slider(
+            "GDP per Capita in USD", 
+            int(dataframe["GDP_per_capita"].min()), 
+            int(dataframe["GDP_per_capita"].max()), 
+            (int(dataframe["GDP_per_capita"].min()), int(dataframe["GDP_per_capita"].max()))
+        )
+
+        carbon_tax_min, carbon_tax_max = st.sidebar.slider(
+            "Carbon Tax ($ per tonne of CO₂ equivalent)", 
+            int(dataframe["Carbon_tax"].min()), 
+            int(dataframe["Carbon_tax"].max()), 
+            (int(dataframe["Carbon_tax"].min()), int(dataframe["Carbon_tax"].max()))
+    )
+
+        # Renewables filter
+        renewables_min, renewables_max = st.sidebar.slider(
+            "Renewables (%)", 
+            int(dataframe["Renewables"].min()), 
+            int(dataframe["Renewables"].max()), 
+            (int(dataframe["Renewables"].min()), int(dataframe["Renewables"].max()))
+        )
+
     else:
+        # Default ranges
         life_expectancy_min, life_expectancy_max = int(dataframe["Life_expectancy"].min()), int(dataframe["Life_expectancy"].max())
         co2_min, co2_max = int(dataframe["co2_per_capita"].min()), 30
+        gdp_min, gdp_max = int(dataframe["GDP_per_capita"].min()), int(dataframe["GDP_per_capita"].max())
+        carbon_tax_min, carbon_tax_max = int(dataframe["Carbon_tax"].min()), int(dataframe["Carbon_tax"].max())
+        renewables_min, renewables_max = int(dataframe["Renewables"].min()), int(dataframe["Renewables"].max())
 
     # Apply filters to the dataframe
     filtered_data = dataframe[
         (dataframe["Life_expectancy"] >= life_expectancy_min) & 
         (dataframe["Life_expectancy"] <= life_expectancy_max) & 
         (dataframe["co2_per_capita"] >= co2_min) & 
-        (dataframe["co2_per_capita"] <= co2_max)
+        (dataframe["co2_per_capita"] <= co2_max) &
+        (dataframe["GDP_per_capita"] >= gdp_min) & 
+        (dataframe["GDP_per_capita"] <= gdp_max) &
+        (dataframe["Carbon_tax"] >= carbon_tax_min) & 
+        (dataframe["Carbon_tax"] <= carbon_tax_max) &
+        (dataframe["Renewables"] >= renewables_min) & 
+        (dataframe["Renewables"] <= renewables_max)
     ]
 
     if selected_country:
@@ -92,6 +127,13 @@ def filtering(dataframe):
         (filtered_data["year"] >= selected_year_range[0]) & 
         (filtered_data["year"] <= selected_year_range[1])
     ]
+
+    # Displaying the current filter ranges
+    st.sidebar.write(f"Life Expectancy range: {life_expectancy_min} - {life_expectancy_max} years.")
+    st.sidebar.write(f"CO₂ per Capita range: {co2_min} - {co2_max} tons.")
+    st.sidebar.write(f"GDP per Capita range: {gdp_min} - {gdp_max} USD.")
+    st.sidebar.write(f"Carbon Tax range: {carbon_tax_min} - {carbon_tax_max} USD.")
+    st.sidebar.write(f"Renewables range: {renewables_min} - {renewables_max} %.")
 
     return (
         filtered_data,
