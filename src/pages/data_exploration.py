@@ -33,7 +33,7 @@ def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, 
             
             with col2:
                 # Pie chart
-                pie_fig = pie_chart(dataframe, selected_year_range, selected_countries, target_column)
+                pie_fig = pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column)
                 st.plotly_chart(pie_fig, use_container_width=True)
             
             # Create columns for Y-axis scale and prediction options
@@ -255,7 +255,7 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
     )
 
     return map_fig
-def pie_chart(dataframe, selected_year_range, selected_countries, target_column):
+def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column):
     # Filter the dataframe based on the selected year range
     filtered_dataframe = dataframe[
         (dataframe["year"] >= selected_year_range[0]) & 

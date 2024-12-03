@@ -26,17 +26,33 @@ def filtering(dataframe):
     st.sidebar.header("Step 2: Filter Data")
     is_filtered = False
 
+    # Initialize session state for selected_country
+    if "selected_country" not in st.session_state:
+        st.session_state.selected_country = []
+
     # Filter by continent and country
     continents = s.get_unique_continents([dataframe])
     countries = s.get_unique_countries([dataframe])
     selected_continent = st.sidebar.selectbox("Select Continent", ["World"] + continents)
 
+    # Update the list of filtered countries based on the selected continent
     if selected_continent == "World":
         filtered_countries = countries
     else:
         filtered_countries = s.get_countries_by_continent([dataframe], selected_continent)
 
-    selected_country = st.sidebar.multiselect("Select Country", filtered_countries, default=filtered_countries[:0])
+    # Preserve previously selected countries if still in the filtered list
+    st.session_state.selected_country = [
+        country for country in st.session_state.selected_country if country in filtered_countries
+    ]
+
+    # Let the user update the selected countries
+    selected_country = st.sidebar.multiselect(
+        "Select Country",
+        filtered_countries,  # Current options
+        default=st.session_state.selected_country  # Default to preserved selections
+    )
+    st.session_state.selected_country = selected_country  # Update session state
 
     # Filter by year range
     years = s.get_unique_years([dataframe])
