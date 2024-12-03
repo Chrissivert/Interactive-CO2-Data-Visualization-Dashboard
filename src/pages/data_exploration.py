@@ -21,7 +21,7 @@ def page(filtered_dataframe, merged_dataframe, selected_continent, selected_coun
             st.plotly_chart(map_fig, use_container_width=True)
         else:
             # Create two columns for displaying map and pie chart
-            col1, col2 = st.columns([2, 1])
+            col1, col2 = st.columns([3, 1])
             
             with col1:
                 # Map chart
