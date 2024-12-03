@@ -179,5 +179,15 @@ def filtering(dataframe):
         filtered_data["year"] >= selected_year_range[0]) & 
         (filtered_data["year"] <= selected_year_range[1])
     ]
+    help_button()
 
     return filtered_data, is_filtered, selected_continent, selected_country, selected_year_range
+
+def help_button():
+    with st.sidebar.expander("Need Help? ❓"):
+        st.write("""
+            ### Help Information:
+            - **Select a country** to get more interactive options and tools.
+            - **Filters** are available to refine the data by continent, year, and various attributes.
+            - **Charts** will update based on your selected filters and data.
+        """)

@@ -39,8 +39,8 @@ class HeatmapScatter:
 
     def display_heatmap(self):
         st.subheader("Heatmap of columns")
-        data_source = st.radio("Select data to display:", ["World (No Filter)", "Selected Countries"])
-        if data_source == "World (No Filter)":
+        data_source = st.radio("Select data to display:", ["All Countries", "Selected Countries"])
+        if data_source == "All Countries":
             self.display_specific_heatmap(self.filtered_df)
         else:
             if len(self.selected_country) == 0:
