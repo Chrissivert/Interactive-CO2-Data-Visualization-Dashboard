@@ -54,6 +54,9 @@ def filtering(dataframe):
     )
     st.session_state.selected_country = selected_country  # Update session state
 
+    if not selected_country:
+        st.info("Select a country to unlock more interaction tools!")
+
     # Filter by year range
     years = s.get_unique_years([dataframe])
     selected_year_range = st.sidebar.slider(
