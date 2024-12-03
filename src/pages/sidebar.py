@@ -24,9 +24,10 @@ def display_step_1():
 
 def filtering(dataframe):
     st.sidebar.header("Step 2: Filter Data")
+
+    # Filter by continent and country
     continents = s.get_unique_continents([dataframe])
     countries = s.get_unique_countries([dataframe])
-
     selected_continent = st.sidebar.selectbox("Select Continent", ["World"] + continents)
 
     if selected_continent == "World":
@@ -36,7 +37,51 @@ def filtering(dataframe):
 
     selected_country = st.sidebar.multiselect("Select Country", filtered_countries, default=filtered_countries[:0])
 
+    # Filter by year range
     years = s.get_unique_years([dataframe])
-    selected_year_range = st.sidebar.slider("Select Year Range", min(years), max(years), (min(years), max(years)))
+    selected_year_range = st.sidebar.slider(
+        "Select Year Range", 
+        min(years), 
+        max(years), 
+        (min(years), max(years))
+    )
 
-    return selected_continent, selected_country, selected_year_range
+    # Filter by additional numerical attributes
+    st.sidebar.subheader("Filter by Attributes")
+
+    life_expectancy_min, life_expectancy_max = st.sidebar.slider(
+        "Filter Life Expectancy", 
+        int(dataframe["Life_expectancy"].min()), 
+        int(dataframe["Life_expectancy"].max()), 
+        (int(dataframe["Life_expectancy"].min()), int(dataframe["Life_expectancy"].max()))
+    )
+
+
+    co2_min, co2_max = st.sidebar.slider(
+    "Filter CO₂ per Capita", 
+    int(dataframe["co2_per_capita"].min()), 
+    30,  # Hardcode the maximum value to 30
+    (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
+)
+
+    # Apply filters to the dataframe
+    filtered_data = dataframe[
+        (dataframe["Life_expectancy"] >= life_expectancy_min) & 
+        (dataframe["Life_expectancy"] <= life_expectancy_max) &
+        (dataframe["co2_per_capita"] >= co2_min) & 
+        (dataframe["co2_per_capita"] <= co2_max)
+    ]
+
+    if selected_country:
+        filtered_data = filtered_data[filtered_data["country"].isin(selected_country)]
+
+    filtered_data = filtered_data[
+        (filtered_data["year"] >= selected_year_range[0]) & 
+        (filtered_data["year"] <= selected_year_range[1])
+    ]
+
+    return (
+        filtered_data,
+        selected_continent, 
+        selected_country, 
+        selected_year_range)
