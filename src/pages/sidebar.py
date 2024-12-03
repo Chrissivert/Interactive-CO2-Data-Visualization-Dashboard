@@ -24,6 +24,7 @@ def display_step_1():
 
 def filtering(dataframe):
     st.sidebar.header("Step 2: Filter Data")
+    is_filtered = False
 
     # Filter by continent and country
     continents = s.get_unique_continents([dataframe])
@@ -117,30 +118,35 @@ def filtering(dataframe):
     filtered_data = dataframe
 
     if apply_life_expectancy:
+        is_filtered = True
         filtered_data = filtered_data[(
             filtered_data["Life_expectancy"] >= life_expectancy_min) & 
             (filtered_data["Life_expectancy"] <= life_expectancy_max)
         ]
 
     if apply_co2:
+        is_filtered = True
         filtered_data = filtered_data[(
             filtered_data["co2_per_capita"] >= co2_min) & 
             (filtered_data["co2_per_capita"] <= co2_max)
         ]
 
     if apply_gdp:
+        is_filtered = True
         filtered_data = filtered_data[(
             filtered_data["GDP_per_capita"] >= gdp_min) & 
             (filtered_data["GDP_per_capita"] <= gdp_max)
         ]
 
     if apply_carbon_tax:
+        is_filtered = True
         filtered_data = filtered_data[(
             filtered_data["Carbon_tax"] >= carbon_tax_min) & 
             (filtered_data["Carbon_tax"] <= carbon_tax_max)
         ]
 
     if apply_renewables:
+        is_filtered = True
         filtered_data = filtered_data[(
             filtered_data["Renewables"] >= renewables_min) & 
             (filtered_data["Renewables"] <= renewables_max)
@@ -155,4 +161,4 @@ def filtering(dataframe):
         (filtered_data["year"] <= selected_year_range[1])
     ]
 
-    return filtered_data, selected_continent, selected_country, selected_year_range
+    return filtered_data, is_filtered, selected_continent, selected_country, selected_year_range

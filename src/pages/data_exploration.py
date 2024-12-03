@@ -9,13 +9,13 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.ensemble import RandomForestRegressor
 
-def page(filtered_dataframe, merged_dataframe, selected_continent, selected_countries, selected_year_range, target_column):
+def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, selected_countries, selected_year_range, target_column):
     for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
         
         # Check if no countries are selected
         if len(selected_countries) == 0:
             # Call map_chart with both filtered and merged dataframes
-            map_fig = map_chart(merged_dataframe, dataframe, selected_continent, selected_year_range, selected_countries, target_column)
+            map_fig = map_chart(merged_dataframe, dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column)
             if map_fig is None:
                     return
             st.plotly_chart(map_fig, use_container_width=True)
@@ -25,7 +25,7 @@ def page(filtered_dataframe, merged_dataframe, selected_continent, selected_coun
             
             with col1:
                 # Map chart
-                map_fig = map_chart(merged_dataframe, dataframe, selected_continent, selected_year_range, selected_countries, target_column)
+                map_fig = map_chart(merged_dataframe, dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column)
 
                 if map_fig is None:
                     return
@@ -172,7 +172,7 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
         )
 
     return fig
-def map_chart(merged_dataframe, filtered_dataframe, selected_continent, selected_year_range, selected_countries, target_column):
+def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column):
     # Check if the filtered_dataframe is empty after applying the selected filters
     if filtered_dataframe.empty:
         st.warning("None of the selected countries fit the filters.")
@@ -190,7 +190,12 @@ def map_chart(merged_dataframe, filtered_dataframe, selected_continent, selected
     # Calculate the 98th percentile for color scaling based on the merged_dataframe
     percentile_threshold = merged_dataframe[target_column].quantile(0.98)
 
-    # Create the choropleth map
+    title_text = (
+    f"Combined Attribute(s) Map Over Time"
+    if is_filtered
+    else f"{target_column} Map Over Time"
+)
+
     map_fig = px.choropleth(
         year_dataframe,  # Use the filtered dataframe
         locations="country",  # Column with country names
@@ -198,7 +203,7 @@ def map_chart(merged_dataframe, filtered_dataframe, selected_continent, selected
         color=target_column,  # Use target_column for coloring the countries
         color_continuous_scale="Viridis",  # Color scale from light (low) to dark (high)
         labels={target_column: f"{target_column} per Capita"},
-        title=f"{target_column} Map Over Time",
+        title=title_text,  # Dynamic title based on is_filtered
         hover_name="country",  # Show country name on hover
         hover_data=[target_column],  # Show data for target_column on hover
         animation_frame="year",  # Create an animation for the years
