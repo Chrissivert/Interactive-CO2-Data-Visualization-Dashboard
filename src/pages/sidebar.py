@@ -76,6 +76,7 @@ def filtering(dataframe):
             int(dataframe["Life_expectancy"].max()), 
             (int(dataframe["Life_expectancy"].min()), int(dataframe["Life_expectancy"].max()))
         )
+        st.sidebar.write(f"Life Expectancy range: {life_expectancy_min} - {life_expectancy_max} years.")
 
     # CO₂ per Capita filter
     if apply_co2:
@@ -85,6 +86,7 @@ def filtering(dataframe):
             30,  # Hardcode the maximum value to 30
             (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
         )
+        st.sidebar.write(f"CO₂ per Capita range: {co2_min} - {co2_max} tonnes.")
 
     # GDP per capita filter
     if apply_gdp:
@@ -94,6 +96,7 @@ def filtering(dataframe):
             int(dataframe["GDP_per_capita"].max()), 
             (int(dataframe["GDP_per_capita"].min()), int(dataframe["GDP_per_capita"].max()))
         )
+        st.sidebar.write(f"GDP per Capita range: {gdp_min} - {gdp_max} USD.")
 
     # Carbon Tax filter
     if apply_carbon_tax:
@@ -103,6 +106,7 @@ def filtering(dataframe):
             int(dataframe["Carbon_tax"].max()), 
             (int(dataframe["Carbon_tax"].min()), int(dataframe["Carbon_tax"].max()))
         )
+        st.sidebar.write(f"Carbon Tax range: {carbon_tax_min} - {carbon_tax_max} USD.")
 
     # Renewables filter
     if apply_renewables:
@@ -112,6 +116,7 @@ def filtering(dataframe):
             int(dataframe["Renewables"].max()), 
             (int(dataframe["Renewables"].min()), int(dataframe["Renewables"].max()))
         )
+        st.sidebar.write(f"Renewables range: {renewables_min} - {renewables_max} %.")
 
     # Apply filters only for selected attributes
     filtered_data = dataframe
@@ -154,12 +159,5 @@ def filtering(dataframe):
         filtered_data["year"] >= selected_year_range[0]) & 
         (filtered_data["year"] <= selected_year_range[1])
     ]
-
-    # Display the current filter ranges
-    st.sidebar.write(f"Life Expectancy range: {life_expectancy_min} - {life_expectancy_max} years.")
-    st.sidebar.write(f"CO₂ per Capita range: {co2_min} - {co2_max} tonnes.")
-    st.sidebar.write(f"GDP per Capita range: {gdp_min} - {gdp_max} USD.")
-    st.sidebar.write(f"Carbon Tax range: {carbon_tax_min} - {carbon_tax_max} USD.")
-    st.sidebar.write(f"Renewables range: {renewables_min} - {renewables_max} %.")
 
     return filtered_data, selected_continent, selected_country, selected_year_range
