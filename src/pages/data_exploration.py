@@ -250,8 +250,6 @@ def map_chart(merged_dataframe, filtered_dataframe, selected_continent, selected
     )
 
     return map_fig
-
-
 def pie_chart(dataframe, selected_year_range, selected_countries, target_column):
     # Filter the dataframe based on the selected year range
     filtered_dataframe = dataframe[
@@ -270,12 +268,18 @@ def pie_chart(dataframe, selected_year_range, selected_countries, target_column)
     data_by_country["percentage"] = (data_by_country[target_column] / total_data) * 100
 
     # Create the pie chart
+    # Create the pie chart
     pie_fig = px.pie(
         data_by_country, 
         names="country", 
         values="percentage", 
-        title=f"{target_column} (Average from {selected_year_range[0]} to {selected_year_range[1]})",
+        title=f"{target_column} <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})",
         labels={"percentage": f"{target_column} (%)"}
+    )
+
+    # Set the hover text to show percentages with 2 decimals
+    pie_fig.update_traces(
+        hovertemplate="%{label}: %{value:.2f}%<extra></extra>"  # Format percentage to 2 decimals
     )
 
     return pie_fig
