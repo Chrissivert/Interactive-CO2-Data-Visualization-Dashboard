@@ -10,7 +10,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.ensemble import RandomForestRegressor
 
 def page(filtered_dataframe, merged_dataframe, selected_continent, selected_countries, selected_year_range, target_column):
-    # Loop through the dataframes
     for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
         
         # Check if no countries are selected
@@ -170,7 +169,6 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
             x=1929, 
             line=dict(color="blue", dash="dash"), 
             annotation_text="The Great Depression (1929)"
-            # annotation_position="bottom left" if add_world_war_two_lines else "top left"
         )
 
     return fig
@@ -230,17 +228,17 @@ def map_chart(merged_dataframe, filtered_dataframe, selected_continent, selected
     selected_countries_df = filtered_dataframe[filtered_dataframe["country"].isin(selected_countries)]
 
     scatter_trace = go.Scattergeo(
-        locations=selected_countries_df["country"],
-        locationmode="country names",
-        mode="markers",  # Only markers, no text labels
-        marker=dict(
-            size=4,  # Adjust the size of the markers
-            color="red",  # Set the color to red for selected countries
-            line=dict(width=4, color="red"),  # Border color for selected countries (red)
-        ),
-        showlegend=False  # Hide the legend for the markers
-    )
-
+    locations=selected_countries_df["country"],
+    locationmode="country names",
+    mode="markers",  # Only markers, no text labels
+    marker=dict(
+        size=4,  # Adjust the size of the markers
+        color="red",  # Set the color to red for selected countries
+        line=dict(width=4, color="red"),  # Border color for selected countries (red)
+    ),
+    showlegend=False,  # Hide the legend for the markers
+    hoverinfo='location',  # Only show the location when hovering over the markers (remove "Trace 1")
+)
     # Add the scatter trace to the map
     map_fig.add_trace(scatter_trace)
 
