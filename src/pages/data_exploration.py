@@ -272,13 +272,19 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     total_data = data_by_country[target_column].sum()
     data_by_country["percentage"] = (data_by_country[target_column] / total_data) * 100
 
-    # Create the pie chart
+    # Dynamic title based on is_filtered
+    chart_title = (
+        f"Combined Attribute(s) <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})"
+        if is_filtered
+        else f"{target_column} <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})"
+    )
+
     # Create the pie chart
     pie_fig = px.pie(
         data_by_country, 
         names="country", 
         values="percentage", 
-        title=f"{target_column} <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})",
+        title=chart_title,
         labels={"percentage": f"{target_column} (%)"}
     )
 
@@ -288,3 +294,4 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     )
 
     return pie_fig
+
