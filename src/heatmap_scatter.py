@@ -37,40 +37,6 @@ class HeatmapScatter:
         
         return df
 
-    # def display_heatmap(self):
-    #     """Generate and display a heatmap for the dataset."""
-    #     if self.filtered_df is not None:
-    #         st.subheader("Heatmap of columns")
-            
-    #         # Radio button to toggle between world (no filter) and selected countries
-    #         data_source = st.radio("Select data to display:", ["World (No Filter)", "Selected Countries"])
-
-    #         # Choose the appropriate DataFrame based on the user's selection
-    #         heatmap_data = self.filtered_df
-
-    #         # Only include numerical columns for correlation matrix
-    #         numerical_cols = heatmap_data.select_dtypes(include='number')
-            
-    #         if numerical_cols.shape[1] > 1:
-    #             # Calculate the correlation matrix
-    #             correlation_matrix = numerical_cols.corr()
-    #             st.write("Correlation Matrix:")
-                
-    #             # Checkbox to show/hide raw data
-    #             show_raw_data = st.checkbox("Show Raw Data", value=False)
-    #             if show_raw_data:
-    #                 st.dataframe(heatmap_data)  # Display the raw data table
-                
-    #             # Create the heatmap
-    #             fig, ax = plt.subplots(figsize=(10, 8))
-    #             # sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-                
-    #             st.pyplot(fig, use_container_width=False)
-    #         else:
-    #             st.warning("Not enough numerical columns in the dataset to create a heatmap.")
-    #     else:
-    #         st.error("No data available to display a heatmap.")
-            
     def display_heatmap(self):
         data_source = st.radio("Select data to display:", ["World (No Filter)", "Selected Countries"])
         if data_source == "World (No Filter)":
@@ -96,13 +62,8 @@ class HeatmapScatter:
             numerical_cols = heatmap_data.select_dtypes(include='number')
             
             if numerical_cols.shape[1] > 1:
-                # Calculate the correlation matrix
                 correlation_matrix = numerical_cols.corr()
-                # st.write("Correlation Matrix:")
                 
-                # Checkbox to show/hide raw data
-                # show_raw_data = st.checkbox("Show Raw Data", value=False)
-                # if show_raw_data:
                 tab2.dataframe(heatmap_data)  # Display the raw data table
                 
                 with tab1: 
@@ -112,8 +73,10 @@ class HeatmapScatter:
                         x=correlation_matrix.columns,
                         y=correlation_matrix.columns,
                         colorscale='RdBu',  # Color scale
+                        zmin=-1,  # Set the lower limit of the color range
+                        zmax=1,   # Set the upper limit of the color range
                         colorbar=dict(title="Correlation"),
-                        hoverongaps=False  # Hide gaps on hover,
+                        hoverongaps=False  # Hide gaps on hover
                     ))
                     
                     # Update layout for better visualization
@@ -176,7 +139,6 @@ class HeatmapScatter:
                     line=dict(color="white", dash="dash")  # Set line color to white (or any other color)
                 ))
 
-                # Update layout to improve aesthetics
                 fig.update_layout(
                     template="plotly_dark",
                     title=f"{x_variable} vs {y_variable} with OLS Trendline",

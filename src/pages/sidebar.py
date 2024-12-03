@@ -17,6 +17,8 @@ def display_step_1():
         target_column = "GDP_per_capita"
     elif selected_column == "Life Expectancy":
         target_column = "Life_expectancy"
+    elif selected_column == "Coal Consumption":
+        target_column = "Coal_consumption_per_capita"
 
     return target_column
 
