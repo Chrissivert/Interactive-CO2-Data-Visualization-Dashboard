@@ -1,27 +1,6 @@
 import streamlit as st
 import src.service as s
 
-def display_step_1():
-    """Step 1: Allow the user to select the dataset."""
-    st.sidebar.header("Step 1: Select Dataset")
-    dataset_options = ["Renewable Energy", "CO2 Emissions", "Carbon Tax", "GDP per capita", "Life Expectancy"]
-    selected_column = st.sidebar.selectbox("Select Dataset", dataset_options)
-
-    if selected_column == "Renewable Energy":
-        target_column = "Renewables"
-    elif selected_column == "CO2 Emissions":
-        target_column = "co2_per_capita"
-    elif selected_column == "Carbon Tax":
-        target_column = "Carbon_tax"
-    elif selected_column == "GDP per capita":
-        target_column = "GDP_per_capita"
-    elif selected_column == "Life Expectancy":
-        target_column = "Life_expectancy"
-    elif selected_column == "Coal Consumption":
-        target_column = "Coal_consumption_per_capita"
-
-    return target_column
-
 def filtering(dataframe):
     help_button()
 
