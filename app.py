@@ -21,11 +21,10 @@ file_mapping = {
 
 dataframes = {name: s.load_default_file(path) for name, path in file_mapping.items()}
 
-
 merged_dataframe = s.merge_dataframes(dataframes)
 
-st.sidebar.header("Step 1: Select a Target Column")
-target_column = st.sidebar.selectbox("Select Target Column", merged_dataframe.columns[3:])
+target_column =  "co2_per_capita"
+
 filted_dataframe, is_filtered, selected_continent, selected_country, selected_year_range = sidebar.filtering(merged_dataframe)
 
 src.pages.data_exploration.page(
