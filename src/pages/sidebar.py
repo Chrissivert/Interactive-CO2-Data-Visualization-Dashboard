@@ -23,12 +23,13 @@ def display_step_1():
     return target_column
 
 def filtering(dataframe):
-    st.sidebar.header("Step 2: Filter Data")
+    help_button()
+
     is_filtered = False
 
     # Initialize session state for selected_country
-    if "selected_country" not in st.session_state:
-        st.session_state.selected_country = []
+    # if "selected_country" not in st.session_state:
+    #     st.session_state.selected_country = []
 
     # Filter by continent and country
     continents = s.get_unique_continents([dataframe])
@@ -42,17 +43,17 @@ def filtering(dataframe):
         filtered_countries = s.get_countries_by_continent([dataframe], selected_continent)
 
     # Preserve previously selected countries if still in the filtered list
-    st.session_state.selected_country = [
-        country for country in st.session_state.selected_country if country in filtered_countries
-    ]
+    # st.session_state.selected_country = [
+    #     country for country in st.session_state.selected_country if country in filtered_countries
+    # ]
 
     # Let the user update the selected countries
     selected_country = st.sidebar.multiselect(
         "Select Country",
         filtered_countries,  # Current options
-        default=st.session_state.selected_country  # Default to preserved selections
+        # default=st.session_state.selected_country  # Default to preserved selections
     )
-    st.session_state.selected_country = selected_country  # Update session state
+    # st.session_state.selected_country = selected_country  # Update session state
 
     if not selected_country:
         st.info("Select a country to unlock more interaction tools!")
@@ -82,13 +83,14 @@ def filtering(dataframe):
     st.sidebar.subheader("Filter by Attributes")
 
     # Add checkboxes to toggle the application of filters
-    apply_life_expectancy = st.sidebar.checkbox("Apply Life Expectancy Filter", value=False)
-    apply_co2 = st.sidebar.checkbox("Apply CO₂ per Capita Filter", value=False)
-    apply_gdp = st.sidebar.checkbox("Apply GDP per Capita Filter", value=False)
-    apply_carbon_tax = st.sidebar.checkbox("Apply Carbon Tax Filter", value=False)
-    apply_renewables = st.sidebar.checkbox("Apply Renewables Filter", value=False)
+    # apply_life_expectancy = st.sidebar.checkbox("Apply Life Expectancy Filter", value=False)
+    # apply_co2 = st.sidebar.checkbox("Apply CO₂ per Capita Filter", value=False)
+    # apply_gdp = st.sidebar.checkbox("Apply GDP per Capita Filter", value=False)
+    # apply_carbon_tax = st.sidebar.checkbox("Apply Carbon Tax Filter", value=False)
+    # apply_renewables = st.sidebar.checkbox("Apply Renewables Filter", value=False)
 
     # Life Expectancy filter
+    apply_life_expectancy = st.sidebar.checkbox("Apply Life Expectancy Filter", value=False)
     if apply_life_expectancy:
         life_expectancy_min, life_expectancy_max = st.sidebar.slider(
             "Life Expectancy in years", 
@@ -98,15 +100,17 @@ def filtering(dataframe):
         )
 
     # CO₂ per Capita filter
-    if apply_co2:
-        co2_min, co2_max = st.sidebar.slider(
-            "CO₂ per Capita in tonnes", 
-            int(dataframe["co2_per_capita"].min()), 
-            30,  # Hardcode the maximum value to 30
-            (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
-        )
+    # apply_co2 = st.sidebar.checkbox("Apply CO₂ per Capita Filter", value=False)
+    # if apply_co2:
+    #     co2_min, co2_max = st.sidebar.slider(
+    #         "CO₂ per Capita in tonnes", 
+    #         int(dataframe["co2_per_capita"].min()), 
+    #         30,  # Hardcode the maximum value to 30
+    #         (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
+    #     )
 
     # GDP per capita filter
+    apply_gdp = st.sidebar.checkbox("Apply GDP per Capita Filter", value=False)
     if apply_gdp:
         gdp_min, gdp_max = st.sidebar.slider(
             "GDP per Capita in USD", 
@@ -114,8 +118,9 @@ def filtering(dataframe):
             int(dataframe["GDP_per_capita"].max()), 
             (int(dataframe["GDP_per_capita"].min()), int(dataframe["GDP_per_capita"].max()))
         )
-
+        
     # Carbon Tax filter
+    apply_carbon_tax = st.sidebar.checkbox("Apply Carbon Tax Filter", value=False)
     if apply_carbon_tax:
         carbon_tax_min, carbon_tax_max = st.sidebar.slider(
             "Carbon Tax ($ per tonne of CO₂ equivalent)", 
@@ -125,6 +130,7 @@ def filtering(dataframe):
         )
 
     # Renewables filter
+    apply_renewables = st.sidebar.checkbox("Apply Renewables Filter", value=False)
     if apply_renewables:
         renewables_min, renewables_max = st.sidebar.slider(
             "Renewables (%)", 
@@ -179,15 +185,19 @@ def filtering(dataframe):
         filtered_data["year"] >= selected_year_range[0]) & 
         (filtered_data["year"] <= selected_year_range[1])
     ]
-    help_button()
 
     return filtered_data, is_filtered, selected_continent, selected_country, selected_year_range
 
-def help_button():
-    with st.sidebar.expander("Need Help? ❓"):
-        st.write("""
-            ### Help Information:
-            - **Select a country** to get more interactive options and tools.
-            - **Filters** are available to refine the data by continent, year, and various attributes.
-            - **Charts** will update based on your selected filters and data.
+@st.dialog("Help")
+def help_dialog():
+    st.write("""
+        - **Select a country** to get more interactive options and tools.
+        - **Filters** are available to refine the data by continent, year, and various attributes.
+        - **Charts** will update based on your selected filters and data.
         """)
+    
+def help_button():
+    if st.sidebar.button("Need Help? ❓"):
+        help_dialog()
+    
+    
