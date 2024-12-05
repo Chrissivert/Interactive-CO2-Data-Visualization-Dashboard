@@ -7,7 +7,7 @@ from src.future_prediction import FuturePrediction
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
-from sklearn.ensemble import RandomForestRegressor
+# from sklearn.ensemble import RandomForestRegressor
 
 def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, selected_countries, selected_year_range, target_column):
     for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
@@ -62,12 +62,12 @@ def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, 
                         )
                         
                         # Create tabs for different prediction models
-                        tab1, tab2, tab3 = st.tabs(["Linear Regression", "Polynomial Features", "Random Forest Regressor"])
+                        tab1, tab2 = st.tabs(["Linear Regression", "Polynomial Features"])
                         
                         # Generate predictions for each model
                         future_prediction.plot(tab1, LinearRegression())
                         future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=4), LinearRegression()))
-                        future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
+                        # future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
                     else:
                         st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
 
