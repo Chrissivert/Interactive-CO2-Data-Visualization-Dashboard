@@ -193,7 +193,7 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
     title_text = (
     f"Combined Attribute(s) Map Over Time"
     if is_filtered
-    else f"{target_column} Map Over Time"
+    else "Co2 per Capita Map Over Time"
 )
 
     map_fig = px.choropleth(
@@ -202,7 +202,8 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
         locationmode="country names",  # Use country names for the map
         color=target_column,  # Use target_column for coloring the countries
         color_continuous_scale="Viridis",  # Color scale from light (low) to dark (high)
-        labels={target_column: f"{target_column} per Capita"},
+        # labels={target_column: f"{target_column} per Capita"},
+        labels={target_column: "CO2 per Capita (tonnes)"},
         title=title_text,  # Dynamic title based on is_filtered
         hover_name="country",  # Show country name on hover
         hover_data=[target_column],  # Show data for target_column on hover
