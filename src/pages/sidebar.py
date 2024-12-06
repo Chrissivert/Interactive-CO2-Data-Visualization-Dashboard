@@ -59,6 +59,13 @@ def filtering(dataframe):
     carbon_tax_min, carbon_tax_max = int(dataframe["Carbon_tax"].min()), int(dataframe["Carbon_tax"].max())
     renewables_min, renewables_max = int(dataframe["Renewables"].min()), int(dataframe["Renewables"].max())
 
+    co2_min, co2_max = st.sidebar.slider(
+        "CO₂ per Capita in tonnes", 
+        int(dataframe["co2_per_capita"].min()), 
+        30,  # Hardcode the maximum value to 30
+        (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
+    )
+
     st.sidebar.subheader("Filter by Attributes")
 
     # Add checkboxes to toggle the application of filters
@@ -80,13 +87,12 @@ def filtering(dataframe):
 
     # CO₂ per Capita filter
     # apply_co2 = st.sidebar.checkbox("Apply CO₂ per Capita Filter", value=False)
-    # if apply_co2:
-    #     co2_min, co2_max = st.sidebar.slider(
-    #         "CO₂ per Capita in tonnes", 
-    #         int(dataframe["co2_per_capita"].min()), 
-    #         30,  # Hardcode the maximum value to 30
-    #         (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
-    #     )
+    # co2_min, co2_max = st.sidebar.slider(
+    #     "CO₂ per Capita in tonnes", 
+    #     int(dataframe["co2_per_capita"].min()), 
+    #     30,  # Hardcode the maximum value to 30
+    #     (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
+    # )
 
     # GDP per capita filter
     apply_gdp = st.sidebar.checkbox("Apply GDP per Capita Filter", value=False)
@@ -120,6 +126,12 @@ def filtering(dataframe):
 
     # Apply filters only for selected attributes
     filtered_data = dataframe
+    
+    is_filtered = True
+    filtered_data = filtered_data[(
+        filtered_data["co2_per_capita"] >= co2_min) & 
+        (filtered_data["co2_per_capita"] <= co2_max)
+    ]
 
     if apply_life_expectancy:
         is_filtered = True
@@ -128,12 +140,11 @@ def filtering(dataframe):
             (filtered_data["Life_expectancy"] <= life_expectancy_max)
         ]
 
-    if apply_co2:
-        is_filtered = True
-        filtered_data = filtered_data[(
-            filtered_data["co2_per_capita"] >= co2_min) & 
-            (filtered_data["co2_per_capita"] <= co2_max)
-        ]
+    # is_filtered = True
+    # filtered_data = filtered_data[(
+    #     filtered_data["co2_per_capita"] >= co2_min) & 
+    #     (filtered_data["co2_per_capita"] <= co2_max)
+    # ]
 
     if apply_gdp:
         is_filtered = True
