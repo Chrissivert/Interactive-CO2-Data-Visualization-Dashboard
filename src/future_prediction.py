@@ -33,12 +33,6 @@ class FuturePrediction:
                 mode="lines",
                 name=f"Historical {self.target_column} ({country})"
             ))
-            # predictions_fig.add_trace(go.Scatter(
-            #     x=future_years.flatten(),
-            #     y=predictions,
-            #     mode="lines+markers",
-            #     name=f"Predicted {self.target_column} ({country})"
-            # ))
 
         for country in self.selected_countries:
             country_specific_data = country_data[country_data["country"] == country]
