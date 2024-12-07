@@ -9,8 +9,6 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 # from sklearn.ensemble import RandomForestRegressor
 
-color_sequence = ['#636EFA', '#EF553B', '#00CC96', '#AB63A1', '#19D3F3']  # Choose your color palette
-
 
 def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, selected_countries, selected_year_range, target_column):
     for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
@@ -224,8 +222,7 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
         "Asia": "asia",
         "North America": "north america",
         "South America": "south america",
-        "Africa": "africa",
-        "USA": "usa"
+        "Africa": "africa"
     }
 
     # Apply the selected continent's scope

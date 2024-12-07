@@ -94,16 +94,16 @@ class HeatmapScatter:
                 st.warning("Not enough numerical columns in the dataset to create a heatmap.")
 
     def display_scatterplot(self):
-        """Generate and display scatterplot with OLS trendline for the selected data."""
+        """Generate and display scatterplot without OLS trendline for the selected data."""
         if len(self.selected_country) != 0:
             if self.filtered_df is not None:
-                st.subheader("Scatterplot with OLS Trendline")
-                
-                # TODO: Discuss if we want this!
+                st.subheader("Scatterplot")
+
+                # Drop any NaN values from the dataframe
                 self.filtered_df = self.filtered_df.dropna()
 
                 # Dropdown for X and Y-axis selection
-                col1, col2 = st.columns([1,1])
+                col1, col2 = st.columns([1, 1])
                 
                 x_variable = col1.selectbox("Select X-axis", self.filtered_df.select_dtypes(include='number').columns, index=0, key="scatter_x")
                 y_variable = col2.selectbox("Select Y-axis", self.filtered_df.select_dtypes(include='number').columns, index=1, key="scatter_y")
@@ -121,26 +121,9 @@ class HeatmapScatter:
                         marker=dict(size=8)  # Adjust size of points for visibility
                     ))
 
-                # --- Add OLS Trendline ---
-                X = self.filtered_df[[x_variable]]  # Independent variable (selected X-Axis)
-                X = sm.add_constant(X)  # Add constant term for OLS (intercept)
-                y = self.filtered_df[y_variable]  # Dependent variable (selected Y-Axis)
-
-                model = sm.OLS(y, X).fit()
-                trendline = model.predict(X)  # Predicted values (trendline)
-
-                # Add the OLS trendline to the scatter plot
-                fig.add_trace(go.Scatter(
-                    x=self.filtered_df[x_variable],  # Selected X-Axis for OLS line
-                    y=trendline,  # Predicted values
-                    mode="lines",
-                    name="OLS Trendline",
-                    line=dict(color="white", dash="dash")  # Set line color to white (or any other color)
-                ))
-
                 fig.update_layout(
                     template="plotly_dark",
-                    title=f"{x_variable} vs {y_variable} with OLS Trendline",
+                    title=f"{x_variable} vs {y_variable} for {self.selected_country[0]}" if len(self.selected_country) == 1 else f"{x_variable} vs {y_variable}",
                     xaxis_title=x_variable,
                     yaxis_title=y_variable
                 )
@@ -149,3 +132,4 @@ class HeatmapScatter:
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.warning("No data available for the selected criteria to create a scatterplot.")
+

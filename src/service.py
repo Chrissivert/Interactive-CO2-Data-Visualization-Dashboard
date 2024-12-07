@@ -99,6 +99,8 @@ def get_unique_continents(dataframes: list) -> list:
             continent = country_to_continent(country)  # Get continent for the country
             if continent:  # Only add the continent if it's not None
                 continents.add(continent)
+                if continent == 'Oceania':
+                    continents.remove('Oceania') # Remove Oceania from the list of continents, because it does not work
     return sorted(continents)  # Return the sorted list of unique continents
 
 
@@ -113,22 +115,3 @@ def get_countries_by_continent(dataframes: list, selected_continent: str) -> lis
             except Exception as e:
                 pass
     return sorted(countries_in_continent)
-    
-
-
-
-
-
-# Removed unused methods (?)
-def get_alpha_2_code(alpha_3):
-  url = f"https://restcountries.com/v3.1/all"
-  response = requests.get(url) 
-  countries = response.json()    
-  for country in countries:
-    if country.get("cca3") == alpha_3:  
-      return country.get("cca2") 
-  
-  return None 
-
-def get_flag_url(country_code):
-  return f"https://flagcdn.com/w40/{country_code.lower()}.png"
