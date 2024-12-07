@@ -184,10 +184,63 @@ def help_dialog():
         - **Select a country** to get more interactive options and tools.
         - **Filters** are available to refine the data by continent, year, and various attributes.
         - **Charts** will update based on your selected filters and data.
+        
+        Read about the different charts here:
         """)
     
+    with st.expander("Map"):
+        st.write("""
+            The **Map chart** is the first chart you see when opening the application. It shows a map over the world. This map has a few functions:
+            - **Timeline:** Under the map, there is a timeline that users can play and stop as they wish, this provides a viewing opertinuty for users to see how the world (all countries) has developed over the years.
+            - **Country Selection:** When choosing a country (or multiple), only the selected countries are highlighted on the map, and only those countries will change over time whilst every other country is white.
+            - **Continent Selection:** Unlike the 'Country Selection', this feature allows the map to take forms of continents by choosing the desired continent from the sidebar.
+            """)
+        
+    with st.expander("Pie"):
+        st.write("""
+                The **Pie-chart** displays the percentage of the average CO2 emissions between selected countries between a selected year-range.
+                
+                *For example:* The user has selected three countries. Country #1 has 50% emissions, country #2 has 30% emissions, and country #3 has 20% emissions. This means country #1 has as much CO2 emissions has country #2 and #3 combined thoughout the selected year-range.
+            """)
+        
+    with st.expander("Global event"):
+        st.write("""
+                The **Global event chart** has two main areas of function:
+                - **Global Events:** When applying global events, the user can view when the different global events, such as WW1 and WW2, happened and how it effected the CO2 emissions.
+                - **Timeline:** Since the x-axis of the chart represents time, this chart will also display the change of the selected countries over the years.
+            """)
+        
+    with st.expander("Predict the future"):
+        st.write("""
+                The **Predict the future** function displays above the **Global events chart** due to its similarity. Where the only difference is its ability to predict the outcome of the selected years into the future.
+                - **Prediction:** Based on the numerical input of the user, the chart will display the estimated prediction of how the chart will behave. The chart will behave based on two different models, based on which model is chosen by the user:
+                    - **Linear Regression:** This model will make a linear prediction of the data given to the model.
+                    - **Polynomial Features:** This model will make a polynomial prediction of the data given to the model.
+                - **Timeline:** Since the x-axis of the chart represents time, this chart will also display the change of the selected countries over the years.
+            """)
+        
+    with st.expander("Correlation Heatmap"):
+        st.write("""
+                The **Correlation Heatmap**, as the name suggests, shows the correlation of the different attributes. The way to identify the correlation goes as such:
+                - The more **blue** the point of intersection is, the higher correlation it is.
+                - The more **red** the point of intersection is, the less correlation it is.
+                - The lighter the color of the point of intersection is, the more neutral correlation it is.
+                 
+                **Correlation** shows how two variables are linearly related, meaning they change together at a consistant rate*
+            """)
+        
+    with st.expander("Raw data"):
+        st.write("""
+                The **Raw data** sections shows all data in a table format. No colors, no major interaction. Just simple, raw data. Here one can view the different attributes the data consists of. E.g. wether is has NA values, or not.
+            """)
+        
+    with st.expander("Scatter plot"):
+        st.write("""
+                The **Scatter plot** provides the user with the ability to vew the correlation and/or trendline of two selected attributes. Once selected two attributes, a *OLS Trendline* will appear to show the trend between the two features.
+                """)
+    
 def help_button():
-    if st.sidebar.button("Need Help? ❓"):
+    if st.sidebar.button("Need Help❓"):
         help_dialog()
     
     
