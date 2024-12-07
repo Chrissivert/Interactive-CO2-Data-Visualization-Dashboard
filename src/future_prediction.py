@@ -33,6 +33,21 @@ class FuturePrediction:
                 mode="lines",
                 name=f"Historical {self.target_column} ({country})"
             ))
+            # predictions_fig.add_trace(go.Scatter(
+            #     x=future_years.flatten(),
+            #     y=predictions,
+            #     mode="lines+markers",
+            #     name=f"Predicted {self.target_column} ({country})"
+            # ))
+
+        for country in self.selected_countries:
+            country_specific_data = country_data[country_data["country"] == country]
+            country_specific_data = country_specific_data[["year", self.target_column]].dropna()
+
+            future_years, predictions = s.predict_future_values_with_models(
+                country_specific_data, self.target_column, self.years_to_predict, model
+            )
+
             predictions_fig.add_trace(go.Scatter(
                 x=future_years.flatten(),
                 y=predictions,
