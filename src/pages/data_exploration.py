@@ -9,6 +9,9 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 # from sklearn.ensemble import RandomForestRegressor
 
+color_sequence = ['#636EFA', '#EF553B', '#00CC96', '#AB63A1', '#19D3F3']  # Choose your color palette
+
+
 def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, selected_countries, selected_year_range, target_column):
     for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
         
@@ -70,7 +73,6 @@ def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, 
                         # future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
                     else:
                         st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
-
 def chart(dataframe, selected_country, selected_year_range, target_column, log_scale=False):
     filtered_data = dataframe[(dataframe["country"].isin(selected_country)) 
                               & (dataframe["year"] >= selected_year_range[0]) 
@@ -79,6 +81,7 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     # Sort the filtered data by year to ensure the x-axis is from low to high
     filtered_data = filtered_data.sort_values(by="year")
 
+
     # Create the line chart
     fig = px.line(
         filtered_data, 
@@ -86,9 +89,9 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
         y=target_column,  # Use target_column instead of hardcoding the column name
         color="country", 
         title=f"{target_column} over time",
-        log_y=log_scale
-    )
-    
+        log_y=log_scale,
+        category_orders={"country": selected_country},  # Maintain the order of countries
+    )    
     # Add vertical lines for the Paris Agreement and COVID-19 outbreak
     with st.expander("View When Different Global Events Happened:"):
         col11, col12, col13, col14, col15 = st.columns([1,1,1,1,1])
@@ -256,6 +259,7 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
     )
 
     return map_fig
+
 def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column):
     # Filter the dataframe based on the selected year range
     filtered_dataframe = dataframe[
@@ -268,6 +272,7 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     
     # Aggregate data for the selected countries for the given year
     data_by_country = filtered_countries_df.groupby("country")[target_column].mean().reset_index()
+
     
     # Calculate percentage of total for each country
     total_data = data_by_country[target_column].sum()
@@ -280,13 +285,15 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
         else f"{target_column} <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})"
     )
 
-    # Create the pie chart
+    # Create the pie chart with category_orders to maintain the order from data_by_country
     pie_fig = px.pie(
         data_by_country, 
         names="country", 
         values="percentage", 
         title=chart_title,
-        labels={"percentage": f"{target_column} (%)"}
+        labels={"percentage": f"{target_column} (%)"},
+        category_orders={"country": selected_countries},  # Maintain the order of countries
+        color="country",  # Color by country
     )
 
     # Set the hover text to show percentages with 2 decimals
@@ -295,4 +302,3 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     )
 
     return pie_fig
-
