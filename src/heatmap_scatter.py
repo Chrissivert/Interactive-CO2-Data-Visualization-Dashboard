@@ -94,10 +94,9 @@ class HeatmapScatter:
                 st.warning("Not enough numerical columns in the dataset to create a heatmap.")
 
     def display_scatterplot(self):
-        """Generate and display scatterplot without OLS trendline for the selected data."""
         if len(self.selected_country) != 0:
             if self.filtered_df is not None:
-                st.subheader("Scatterplot")
+                st.subheader("Scatter plot")
 
                 # Drop any NaN values from the dataframe
                 self.filtered_df = self.filtered_df.dropna()
