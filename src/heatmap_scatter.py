@@ -129,22 +129,58 @@ class HeatmapScatter:
         return df
 
     def display_heatmap(self):
-        """Display the heatmap based on the selected filter criteria."""
+        """Display the heatmap based on the selected data source."""
         st.subheader("Heatmap of Columns")
         data_source = st.radio("Select Data to Display:", ["Selected Continent", "Selected Countries"])
         
-        if data_source == "Selected Continent" and self.selected_continent == "World":
-            self.display_specific_heatmap(self.filtered_df)
-        elif data_source == "Selected Continent":
+        if data_source == "Selected Continent":
             if self.selected_continent == "World":
-                st.warning("Please select a specific continent to use this feature.")
+                # Display all countries regardless of `self.selected_country`
+                full_world_df = self.dataframes.copy()  # Assume `self.dataframes` contains the full dataset
+                if isinstance(full_world_df, dict):
+                    full_world_df = pd.concat(full_world_df.values(), ignore_index=True)
+                self.display_specific_heatmap(full_world_df)  # Pass the unfiltered dataset for the "World" view
+                
+            elif self.selected_continent == "Africa":
+                africa_df = self.dataframes[self.dataframes["country"].isin(s.get_countries_by_continent([self.dataframes], "Africa"))]
+                if isinstance(africa_df, dict):
+                    africa_df = pd.concat(africa_df.values(), ignore_index=True)
+                self.display_specific_heatmap(africa_df)    
+                
+            elif self.selected_continent == "Asia":
+                asia_df = self.dataframes[self.dataframes["country"].isin(s.get_countries_by_continent([self.dataframes], "Asia"))]
+                if isinstance(asia_df, dict):
+                    asia_df = pd.concat(asia_df.values(), ignore_index=True)
+                self.display_specific_heatmap(asia_df)
+            
+            elif self.selected_continent == "Europe":
+                europe_df = self.dataframes[self.dataframes["country"].isin(s.get_countries_by_continent([self.dataframes], "Europe"))]
+                if isinstance(europe_df, dict):
+                    europe_df = pd.concat(europe_df.values(), ignore_index=True)
+                self.display_specific_heatmap(europe_df)
+                
+            elif self.selected_continent == "North America":
+                north_america_df = self.dataframes[self.dataframes["country"].isin(s.get_countries_by_continent([self.dataframes], "North America"))]
+                if isinstance(north_america_df, dict):
+                    north_america_df = pd.concat(north_america_df.values(), ignore_index=True)
+                self.display_specific_heatmap(north_america_df)
+                
+            elif self.selected_continent == "South America":
+                south_america_df = self.dataframes[self.dataframes["country"].isin(s.get_countries_by_continent([self.dataframes], "South America"))]
+                if isinstance(south_america_df, dict):
+                    south_america_df = pd.concat(south_america_df.values(), ignore_index=True)
+                self.display_specific_heatmap(south_america_df)
+            
             else:
-                self.display_specific_heatmap(self.filtered_df)
+                # Filtered to the selected continent and optionally the selected countries
+                filtered_continent_df = self.filter_data()  # `filter_data` already handles continent filtering
+                self.display_specific_heatmap(filtered_continent_df)
         elif data_source == "Selected Countries":
             if not self.selected_country:
                 st.warning("Please select at least one country to use this feature.")
             else:
-                self.display_specific_heatmap(self.filtered_df)
+                self.display_specific_heatmap(self.filtered_df)  # Already filtered to selected countries
+
 
     def display_specific_heatmap(self, data):
         """Render the heatmap and raw data views."""
