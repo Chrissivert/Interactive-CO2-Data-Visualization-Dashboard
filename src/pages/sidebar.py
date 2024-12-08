@@ -161,8 +161,6 @@ def help_dialog():
             It illustrates the distribution of CO₂ emissions per capita as a percentage of total emissions, averaged across the selected years for the chosen countries.
         """)
 
-        
-
     with st.expander("Global Event"):
         st.write("""
             The **Global Events** overlays global events (such as WW1 and WW2) on the timeline, showing how CO₂ emissions changed during those events.
@@ -198,5 +196,3 @@ def help_dialog():
 def help_button():
     if st.sidebar.button("Need Help❓"):
         help_dialog()
-    
-    

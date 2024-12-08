@@ -7,8 +7,9 @@ from src.future_prediction import FuturePrediction
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
+from colormap import Colormap as cm
 
-color_palette = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
+color_palette = cm.COLORMAP.value
 
 def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, selected_countries, selected_year_range, target_column):
     for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
@@ -16,7 +17,7 @@ def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, 
         if len(selected_countries) == 0:
             map_fig = map_chart(merged_dataframe, dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column)
             if map_fig is None:
-                    return
+                return
             st.plotly_chart(map_fig, use_container_width=True)
         else:
             col1, col2 = st.columns([4, 2])
@@ -174,7 +175,7 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
     percentile_threshold = merged_dataframe[target_column].quantile(0.98)
 
     title_text = (
-    f"Combined Attribute(s) Map Over Time"
+    f"Combined Attributes Map Over Time"
     if is_filtered
     else "CO₂ per Capita Map Over Time"
 )

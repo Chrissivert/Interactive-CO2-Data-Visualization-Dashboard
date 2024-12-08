@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import pycountry_convert as pc
 
-
 @st.cache_data
 def load_csv_data(file_paths: list) -> list:
   dataframes = [pd.read_csv(file_path) for file_path in file_paths]
@@ -40,7 +39,6 @@ def merge_dataframes(dataframes: dict) -> pd.DataFrame:
     
     return merged_df
 
-
 def get_unique_countries(dataframes: list[pd.DataFrame]) -> list:
   unique_countries = set()
   for dataframe in dataframes:
@@ -53,15 +51,11 @@ def get_unique_years(dataframes: list[pd.DataFrame]) -> list:
     unique_years.update(dataframe['year'].unique())
   return sorted(unique_years)
 
-
 def get_year_range_from_countries(dataframes: list[pd.DataFrame], countries: list[str]):
   unique_years = set()
   for dataframe in dataframes:
     unique_years.update(dataframe[dataframe["country"].isin(countries)]["year"].unique())
   return sorted(unique_years)
-
-
-
 
 def predict_future_values_with_models(country_specific_data: pd.DataFrame, selected_metric: str, years_to_predict: int, model_to_use):
   x = country_specific_data[["year"]]
@@ -75,7 +69,6 @@ def predict_future_values_with_models(country_specific_data: pd.DataFrame, selec
   predictions = model.predict(future_years)
   
   return future_years, predictions,
-
 
 def country_to_continent(country_name):
     try:
@@ -95,7 +88,6 @@ def get_unique_continents(dataframes: list) -> list:
             if continent and continent != 'Oceania':  
                 continents.add(continent)
     return sorted(continents)  
-
 
 def get_countries_by_continent(dataframes: list, selected_continent: str) -> list:
     countries_in_continent = set()
