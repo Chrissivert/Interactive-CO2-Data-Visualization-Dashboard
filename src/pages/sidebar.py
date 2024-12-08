@@ -68,13 +68,6 @@ def filtering(dataframe):
 
     st.sidebar.subheader("Filter by Attributes")
 
-    # Add checkboxes to toggle the application of filters
-    # apply_life_expectancy = st.sidebar.checkbox("Apply Life Expectancy Filter", value=False)
-    # apply_co2 = st.sidebar.checkbox("Apply CO₂ per Capita Filter", value=False)
-    # apply_gdp = st.sidebar.checkbox("Apply GDP per Capita Filter", value=False)
-    # apply_carbon_tax = st.sidebar.checkbox("Apply Carbon Tax Filter", value=False)
-    # apply_renewables = st.sidebar.checkbox("Apply Renewables Filter", value=False)
-
     # Life Expectancy filter
     apply_life_expectancy = st.sidebar.checkbox("Apply Life Expectancy Filter", value=False)
     if apply_life_expectancy:

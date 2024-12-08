@@ -9,8 +9,6 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 # from sklearn.ensemble import RandomForestRegressor
 
-color_sequence = ['#636EFA', '#EF553B', '#00CC96', '#AB63A1', '#19D3F3']  # Choose your color palette
-
 
 def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, selected_countries, selected_year_range, target_column):
     for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
@@ -24,7 +22,7 @@ def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, 
             st.plotly_chart(map_fig, use_container_width=True)
         else:
             # Create two columns for displaying map and pie chart
-            col1, col2 = st.columns([3, 1])
+            col1, col2 = st.columns([4, 2])
             
             with col1:
                 # Map chart
@@ -81,7 +79,6 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     # Sort the filtered data by year to ensure the x-axis is from low to high
     filtered_data = filtered_data.sort_values(by="year")
 
-
     # Create the line chart
     fig = px.line(
         filtered_data, 
@@ -92,6 +89,10 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
         log_y=log_scale,
         category_orders={"country": selected_country},  # Maintain the order of countries
     )    
+    
+    # Track used annotation positions
+    used_positions = set()
+
     # Add vertical lines for the Paris Agreement and COVID-19 outbreak
     with st.expander("View When Different Global Events Happened:"):
         col11, col12, col13, col14, col15 = st.columns([1,1,1,1,1])
@@ -103,22 +104,22 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
         
         col21, col22, col23, col24, col25 = st.columns([1,1,1,1,1])
         add_dissolution_of_the_soviet_union = col21.checkbox("Show the Dissolution of the Soviet Union", value=False)
-        add_first_man_in_space = col22.checkbox("Show First Man in Space", value=False)
         
-    if add_first_man_in_space:
-        fig.add_vline(
-            x=1961, 
-            line=dict(color="red", dash="dash"), 
-            annotation_text="First Man in Space (1961)", 
-            annotation_position="top right"
-        )
+    # Function to get next available position for annotation
+    def get_next_position():
+        positions = ["top left", "top right", "bottom left", "bottom right"]
+        for pos in positions:
+            if pos not in used_positions:
+                used_positions.add(pos)
+                return pos
+        return "bottom left"  # Default if no position is available
         
     if add_dissolution_of_the_soviet_union:
         fig.add_vline(
             x=1991, 
             line=dict(color="red", dash="dash"), 
-            annotation_text="Dissolution of the Soviet Union (1991)", 
-            annotation_position="bottom right"
+            annotation_text="End of USSR (1991)", 
+            annotation_position="top left"
         )
         
     if add_paris_agreement_line:
@@ -126,55 +127,55 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
             x=2015, 
             line=dict(color="yellow", dash="dash"), 
             annotation_text="Paris Agreement (2015)", 
-            annotation_position="top right"
+            annotation_position="bottom right"
         )
         
     if add_covid_outbreak_line:
-        annotation_position = "bottom right" if add_paris_agreement_line else "top right"
         fig.add_vline(
             x=2019, 
             line=dict(color="red", dash="dash"), 
-            annotation_text="COVID-19 Outbreak (2019)", 
-            annotation_position=annotation_position
+            annotation_text="COVID-19 (2019)", 
+            annotation_position="top right"
         )
         
     if add_world_war_two_lines:
-        # annotation_position = "bottom left" if add_world_war_two_line else "top right"
         fig.add_vline(
             x=1939, 
             line=dict(color="green", dash="dash"), 
-            annotation_text="WW2 Start Point (1939)", 
-            annotation_position="bottom left" if add_world_war_two_lines else "top left"
+            annotation_text="WW2 Start (1939)", 
+            annotation_position="bottom right"
         )
         fig.add_vline(
             x=1945, 
             line=dict(color="green", dash="dash"), 
-            annotation_text="WW2 End Point (1945)", 
-            annotation_position="bottom right" if add_world_war_two_lines else "top right"
+            annotation_text="WW2 End (1945)", 
+            annotation_position="top right"
         )
         
     if add_world_war_one_lines:
         fig.add_vline(
             x=1914, 
             line=dict(color="green", dash="dash"), 
-            annotation_text="WW1 Start Point (1914)", 
-            annotation_position="top left" if add_world_war_two_lines else "bottom left"
+            annotation_text="WW1 Start (1914)", 
+            annotation_position="top left"
         )
         fig.add_vline(
             x=1918, 
             line=dict(color="green", dash="dash"), 
-            annotation_text="WW1 End Point (1918)", 
-            annotation_position="top right" if add_world_war_two_lines else "bottom right"
+            annotation_text="WW1 End (1918)", 
+            annotation_position="bottom left"
         )
         
     if add_the_great_depression:
         fig.add_vline(
             x=1929, 
-            line=dict(color="yellow", dash="dash"), 
-            annotation_text="The Great Depression (1929)"
+            line=dict(color="blue", dash="dash"), 
+            annotation_text="Great Depression (1929)",
+            annotation_position=get_next_position()
         )
 
     return fig
+
 def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column):
     # Check if the filtered_dataframe is empty after applying the selected filters
     if filtered_dataframe.empty:
@@ -221,8 +222,7 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
         "Asia": "asia",
         "North America": "north america",
         "South America": "south america",
-        "Africa": "africa",
-        "USA": "usa"
+        "Africa": "africa"
     }
 
     # Apply the selected continent's scope
@@ -259,7 +259,6 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
     )
 
     return map_fig
-
 def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column):
     # Filter the dataframe based on the selected year range
     filtered_dataframe = dataframe[
@@ -273,7 +272,6 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     # Aggregate data for the selected countries for the given year
     data_by_country = filtered_countries_df.groupby("country")[target_column].mean().reset_index()
 
-    
     # Calculate percentage of total for each country
     total_data = data_by_country[target_column].sum()
     data_by_country["percentage"] = (data_by_country[target_column] / total_data) * 100
@@ -299,6 +297,23 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     # Set the hover text to show percentages with 2 decimals
     pie_fig.update_traces(
         hovertemplate="%{label}: %{value:.2f}%<extra></extra>"  # Format percentage to 2 decimals
+    )
+
+    # Add annotation for the text below the chart
+    description_text = (
+    f"Illustrates the distribution of<br>"
+    f"{target_column} as a % of the total,<br>"
+    f"averaged across the selected years<br>"
+    f"({selected_year_range[0]}-{selected_year_range[1]}),<br>"
+    f"for the selected countries."
+)
+    pie_fig.add_annotation(
+        text=description_text,
+        xref="paper", yref="paper",  # Position relative to the chart
+        x=0.5, y=-0.3,               # Centered below the chart
+        showarrow=False,             # No arrow pointing to the text
+        font=dict(size=12),          # Adjust font size
+        align="center"
     )
 
     return pie_fig
