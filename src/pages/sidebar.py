@@ -183,54 +183,54 @@ def help_dialog():
     
     with st.expander("Map"):
         st.write("""
-            The **Map chart** is the first chart you see when opening the application. It shows a map over the world. This map has a few functions:
-            - **Timeline:** Under the map, there is a timeline that users can play and stop as they wish, this provides a viewing opertinuty for users to see how the world (all countries) has developed over the years.
-            - **Country Selection:** When choosing a country (or multiple), only the selected countries are highlighted on the map, and only those countries will change over time whilst every other country is white.
-            - **Continent Selection:** Unlike the 'Country Selection', this feature allows the map to take forms of continents by choosing the desired continent from the sidebar.
-            """)
-        
+            The **Map** chart is the first visualization you'll see when opening the application. It shows a world map with various features:
+            - **Timeline:** The timeline below the map lets users start or stop to view how CO₂ emissions evolves over time across all countries.
+            - **Country Selection:** Selecting countries or multiple countries highlights them on the map, showing only their data during the selected time.
+            - **Continent Selection:** You can also choose to view data by continent, enabling a broader geographical focus.
+        """)
+
     with st.expander("Pie"):
         st.write("""
-                The **Pie-chart** displays the percentage of the average CO2 emissions between selected countries between a selected year-range.
-                
-                *For example:* The user has selected three countries. Country #1 has 50% emissions, country #2 has 30% emissions, and country #3 has 20% emissions. This means country #1 has as much CO2 emissions has country #2 and #3 combined thoughout the selected year-range.
-            """)
+            The **Pie Chart** displays the proportion of total CO₂ emissions from selected countries within a specified year range.
+            It illustrates the distribution of CO₂ emissions per capita as a percentage of total emissions, averaged across the selected years for the chosen countries.
+        """)
+
         
-    with st.expander("Global event"):
+
+    with st.expander("Global Event"):
         st.write("""
-                The **Global event chart** has two main areas of function:
-                - **Global Events:** When applying global events, the user can view when the different global events, such as WW1 and WW2, happened and how it effected the CO2 emissions.
-                - **Timeline:** Since the x-axis of the chart represents time, this chart will also display the change of the selected countries over the years.
-            """)
-        
-    with st.expander("Predict the future"):
+            The **Global Events** overlays global events (such as WW1 and WW2) on the timeline, showing how CO₂ emissions changed during those events.
+        """)
+
+    with st.expander("Predict the Future"):
         st.write("""
-                The **Predict the future** function displays above the **Global events chart** due to its similarity. Where the only difference is its ability to predict the outcome of the selected years into the future.
-                - **Prediction:** Based on the numerical input of the user, the chart will display the estimated prediction of how the chart will behave. The chart will behave based on two different models, based on which model is chosen by the user:
-                    - **Linear Regression:** This model will make a linear prediction of the data given to the model.
-                    - **Polynomial Features:** This model will make a polynomial prediction of the data given to the model.
-                - **Timeline:** Since the x-axis of the chart represents time, this chart will also display the change of the selected countries over the years.
-            """)
-        
+            The **Predict the Future** feature allows you to forecast future CO₂ emissions based on historical data. The chart will display predictions using one of two models:
+            - **Linear Regression:** A linear approach to predict trends based on past data.
+            - **Polynomial Features:** A more flexible approach that fits a polynomial model to the data for potentially more accurate future predictions.
+        """)
+
     with st.expander("Correlation Heatmap"):
         st.write("""
-                The **Correlation Heatmap**, as the name suggests, shows the correlation of the different attributes. The way to identify the correlation goes as such:
-                - The more **blue** the point of intersection is, the higher correlation it is.
-                - The more **red** the point of intersection is, the less correlation it is.
-                - The lighter the color of the point of intersection is, the more neutral correlation it is.
-                 
-                **Correlation** shows how two variables are linearly related, meaning they change together at a consistant rate*
-            """)
-        
-    with st.expander("Raw data"):
+            The **Correlation Heatmap** shows the relationship between different attributes in the dataset:
+            - **Darker Blue** represents a strong positive correlation, indicating that as one variable increases, the other increases as well.
+            - **Darker Red** represents a strong negative correlation, where an increase in one variable leads to a decrease in the other.
+            - **Lighter Colors** show a weaker or neutral correlation, where changes in one variable do not predict significant changes in the other.
+
+            Correlation values range from **+1** (strong positive) to **-1** (strong negative), with **0** indicating no linear relationship.
+        """)
+
+    with st.expander("Raw Data"):
         st.write("""
-                The **Raw data** sections shows all data in a table format. No colors, no major interaction. Just simple, raw data. Here one can view the different attributes the data consists of. E.g. wether is has NA values, or not.
-            """)
-        
-    with st.expander("Scatter plot"):
+            The **Raw Data** section provides a simple table of all the data without any interactive features. This allows users to view the underlying dataset, including any missing (NA) values and other raw information.
+        """)
+
+    with st.expander("Scatter Plot"):
         st.write("""
-                The **Scatter plot** provides the user with the ability to vew the correlation and/or trendline of two selected attributes. Once selected two attributes, a *OLS Trendline* will appear to show the trend between the two features.
-                """)
+            The **Scatter Plot** shows the relationship between two selected attributes. Once you select two variables, the plot will display the relationship between them and indicate the trend between the attributes.
+        """)
+
+
+
     
 def help_button():
     if st.sidebar.button("Need Help❓"):
