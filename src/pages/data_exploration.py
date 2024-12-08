@@ -176,7 +176,7 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
     title_text = (
     f"Combined Attribute(s) Map Over Time"
     if is_filtered
-    else "Co2 per Capita Map Over Time"
+    else "CO₂ per Capita Map Over Time"
 )
 
     map_fig = px.choropleth(
