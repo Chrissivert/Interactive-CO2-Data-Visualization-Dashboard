@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import src.service as s
+import plotly as p
 
 class FuturePrediction:
     def __init__(self, selected_countries, years_to_predict, scale_type, dataframe, target_column):
@@ -33,23 +34,36 @@ class FuturePrediction:
                 mode="lines",
                 name=f"Historical {self.target_column} ({country})"
             ))
+            
+        # color_map = []
 
         for country in self.selected_countries:
+            # color_map.append(p.colors.DEFAULT_PLOTLY_COLORS[country])
+            
             country_specific_data = country_data[country_data["country"] == country]
             country_specific_data = country_specific_data[["year", self.target_column]].dropna()
 
             future_years, predictions = s.predict_future_values_with_models(
                 country_specific_data, self.target_column, self.years_to_predict, model
             )
+            
+            # color_map.append(p.colors.DEFAULT_PLOTLY_COLORS)
+            # st.write(color_map[country])
 
             predictions_fig.add_trace(go.Scatter(
                 x=future_years.flatten(),
                 y=predictions,
                 mode="lines+markers",
                 name=f"Predicted {self.target_column} ({country})"
+                # line=dict(color=hash(p.colors.DEFAULT_PLOTLY_COLORS[country]).as_integer_ratio()),
+                # marker=dict(color=hash(p.colors.DEFAULT_PLOTLY_COLORS[country]).as_integer_ratio())
             ))
+            
+            
 
         return predictions_fig
+    
+    
 
     def plot(self, tab, model, special_function=None):
         with tab:

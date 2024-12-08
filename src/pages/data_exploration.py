@@ -170,7 +170,7 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     if add_the_great_depression:
         fig.add_vline(
             x=1929, 
-            line=dict(color="blue", dash="dash"), 
+            line=dict(color="yellow", dash="dash"), 
             annotation_text="The Great Depression (1929)"
         )
 
