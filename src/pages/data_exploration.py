@@ -12,38 +12,43 @@ from colormap import Colormap as cm
 color_palette = cm.COLORMAP.value
 
 def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, selected_countries, selected_year_range, target_column):
-    for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
-        
-        if len(selected_countries) == 0:
-            map_fig = map_chart(merged_dataframe, dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column)
-            if map_fig is None:
-                return
-            st.plotly_chart(map_fig, use_container_width=True)
-        else:
-            col1, col2 = st.columns([4, 2])
-            
-            with col1:
-                map_fig = map_chart(merged_dataframe, dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column)
+    for idx, (dataframe, merged_data) in enumerate(zip(filtered_dataframe, merged_dataframe)):
 
-                if map_fig is None:
-                    return
-                st.plotly_chart(map_fig, use_container_width=True)
-            
-            with col2:
-                pie_fig = pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column)
-                st.plotly_chart(pie_fig, use_container_width=True)
-            
-            col_y_axis, col_chart = st.columns([1, 5])
-            
+        map_fig = map_chart(
+            merged_data,
+            dataframe,
+            is_filtered,
+            selected_continent,
+            selected_year_range,
+            selected_countries,
+            target_column
+        )
+
+        if map_fig is None:
+            return
+
+        st.plotly_chart(map_fig, use_container_width=True, key=f"map_fig_{idx}")
+        if len(selected_countries) != 0:
+            col_y_axis, col_chart, col_bar = st.columns([1, 5, 3])
+
             with col_y_axis:
-                scale_type = st.radio("Select Y-axis scale", ("Linear", "Logarithmic"), key=f"scale_type_{idx}")
+                scale_type = st.radio(
+                    "Select Y-axis scale",
+                    ("Linear", "Logarithmic"),
+                    key=f"scale_type_{idx}"
+                )
                 log_scale = scale_type == "Logarithmic"
-                
-                predict_the_future = st.checkbox("Predict the Future")
-                
+
+                predict_the_future = st.checkbox("Predict the Future", key=f"predict_future_{idx}")
+
                 if predict_the_future:
-                    years_to_predict = st.number_input("Insert the number of years to predict into the future", value=5, min_value=1)
-                    
+                    years_to_predict = st.number_input(
+                        "Insert the number of years to predict into the future",
+                        value=5,
+                        min_value=1,
+                        key=f"years_predict_{idx}"
+                    )
+
             with col_chart:
                 if len(selected_countries) == 0:
                     st.warning("Please select at least one country to use this feature")
@@ -54,15 +59,24 @@ def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, 
                             years_to_predict=years_to_predict,
                             scale_type=log_scale,
                             dataframe=filtered_dataframe[0],
-                            target_column=target_column 
+                            target_column=target_column
                         )
-                        
+
                         tab1, tab2 = st.tabs(["Linear Regression", "Polynomial Features"])
-                        
+
                         future_prediction.plot(tab1, LinearRegression())
                         future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=4), LinearRegression()))
                     else:
-                        st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+                        st.plotly_chart(
+                            chart(dataframe, selected_countries, selected_year_range, target_column, log_scale),
+                            use_container_width=True,
+                            key=f"chart_{idx}"
+                        )
+
+            with col_bar:
+                bar_fig = bar_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column)
+                st.plotly_chart(bar_fig, use_container_width=True, key=f"bar_fig_{idx}")
+
 
 def chart(dataframe, selected_country, selected_year_range, target_column, log_scale=False):
     filtered_data = dataframe[(dataframe["country"].isin(selected_country)) 
@@ -72,7 +86,6 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     filtered_data = filtered_data.sort_values(by="year")
     
     color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(selected_country)}
-
 
     fig = px.line(
         filtered_data, 
@@ -87,15 +100,15 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
 
 
     with st.expander("View When Different Global Events Happened:"):
-        col11, col12, col13, col14, col15 = st.columns([1,1,1,1,1])
+        col11, col12, col13, col14 = st.columns([1,1,1,1])
         add_paris_agreement_line = col11.checkbox("Show Paris Agreement", value=True)
         add_covid_outbreak_line = col12.checkbox("Show COVID-19 Outbreak", value=True)
         add_world_war_two_lines = col13.checkbox("Show WW2 Start & End", value=False)
         add_world_war_one_lines = col14.checkbox("Show WW1 Start & End", value=False)
-        add_the_great_depression = col15.checkbox("Show The Great Depression Start", value=False)
         
-        col21, col22, col23, col24, col25 = st.columns([1,1,1,1,1])
+        col21, col22, col23, col24 = st.columns([1,1,1,1])
         add_dissolution_of_the_soviet_union = col21.checkbox("Show the Dissolution of the Soviet Union", value=False)
+        add_the_great_depression = col22.checkbox("Show The Great Depression Start", value=False)
         
         
     if add_dissolution_of_the_soviet_union:
@@ -234,7 +247,63 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
 
     return map_fig
 
-def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column):
+# def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column):
+#     filtered_dataframe = dataframe[
+#         (dataframe["year"] >= selected_year_range[0]) & 
+#         (dataframe["year"] <= selected_year_range[1])
+#     ]
+    
+#     color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(selected_countries)}
+
+
+#     filtered_countries_df = filtered_dataframe[filtered_dataframe["country"].isin(selected_countries)]
+    
+#     data_by_country = filtered_countries_df.groupby("country")[target_column].mean().reset_index()
+
+#     total_data = data_by_country[target_column].sum()
+#     data_by_country["percentage"] = (data_by_country[target_column] / total_data) * 100
+
+#     chart_title = (
+#         f"Combined Attribute(s) <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})"
+#         if is_filtered
+#         else f"{target_column} <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})"
+#     )
+
+#     pie_fig = px.bar(
+#         data_by_country, 
+#         # names="country", 
+#         # values="percentage",
+#         title=chart_title,
+#         labels={"percentage": f"{target_column} (%)"},
+#         category_orders={"country": selected_countries},  
+#         color="country",  
+#         color_discrete_map=color_map  
+#     )
+
+
+#     pie_fig.update_traces(
+#         hovertemplate="%{label}: %{value:.2f}%<extra></extra>"  
+#     )
+
+#     description_text = (
+#     f"Illustrates the distribution of<br>"
+#     f"{target_column} as a % of the total,<br>"
+#     f"averaged across the selected years<br>"
+#     f"({selected_year_range[0]}-{selected_year_range[1]}),<br>"
+#     f"for the selected countries."
+# )
+#     pie_fig.add_annotation(
+#         text=description_text,
+#         xref="paper", yref="paper", 
+#         x=0.5, y=-0.3,               
+#         showarrow=False,             
+#         font=dict(size=12),          
+#         align="center"
+#     )
+
+#     return pie_fig
+
+def bar_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column):
     filtered_dataframe = dataframe[
         (dataframe["year"] >= selected_year_range[0]) & 
         (dataframe["year"] <= selected_year_range[1])
@@ -242,13 +311,9 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     
     color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(selected_countries)}
 
-
     filtered_countries_df = filtered_dataframe[filtered_dataframe["country"].isin(selected_countries)]
     
     data_by_country = filtered_countries_df.groupby("country")[target_column].mean().reset_index()
-
-    total_data = data_by_country[target_column].sum()
-    data_by_country["percentage"] = (data_by_country[target_column] / total_data) * 100
 
     chart_title = (
         f"Combined Attribute(s) <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})"
@@ -256,36 +321,32 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
         else f"{target_column} <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})"
     )
 
-    pie_fig = px.pie(
-        data_by_country, 
-        names="country", 
-        values="percentage", 
+    bar_fig = px.bar(
+        data_by_country,
+        x="country", 
+        y=target_column, 
         title=chart_title,
-        labels={"percentage": f"{target_column} (%)"},
-        category_orders={"country": selected_countries},  
-        color="country",  
-        color_discrete_map=color_map  
+        labels={target_column: f"{target_column} (Average)", "country": "Country"},
+        category_orders={"country": selected_countries},
+        color="country",
+        color_discrete_map=color_map
     )
 
-
-    pie_fig.update_traces(
-        hovertemplate="%{label}: %{value:.2f}%<extra></extra>"  
+    bar_fig.update_traces(
+        hovertemplate="<b>%{x}</b><br>Value: %{y:.2f} tonne(s)<extra></extra>"
     )
 
     description_text = (
-    f"Illustrates the distribution of<br>"
-    f"{target_column} as a % of the total,<br>"
-    f"averaged across the selected years<br>"
-    f"({selected_year_range[0]}-{selected_year_range[1]}),<br>"
-    f"for the selected countries."
-)
-    pie_fig.add_annotation(
+        f"Illustrates the average values of <b>{target_column}</b>"
+    )
+    
+    bar_fig.add_annotation(
         text=description_text,
         xref="paper", yref="paper", 
-        x=0.5, y=-0.3,               
-        showarrow=False,             
-        font=dict(size=12),          
+        x=0.5, y=-0.3,                
+        showarrow=False,              
+        font=dict(size=12),           
         align="center"
     )
 
-    return pie_fig
+    return bar_fig

@@ -129,7 +129,6 @@ class HeatmapScatter:
             else:
                 st.warning("Not enough numerical columns in the dataset to create a heatmap.")
 
-    
     def display_scatterplot(self):
         if len(self.selected_country) != 0:
             if self.filtered_df is not None:
@@ -140,11 +139,8 @@ class HeatmapScatter:
                 x_variable = col1.selectbox("Select X-axis", self.filtered_df.select_dtypes(include='number').columns, index=0, key="scatter_x")
                 y_variable = col2.selectbox("Select Y-axis", self.filtered_df.select_dtypes(include='number').columns, index=1, key="scatter_y")
 
-                trendline_type = st.radio(
-                    "Select Trendline Option",
-                    options=["None", "Trendline for Each Country", "General Trendline"],
-                    index=0
-                )
+                show_country_trendline = st.checkbox("Show Country Trendlines", value=False, key="country_trendline")
+                show_general_trendline = st.checkbox("Show General Trendline", value=False, key="general_trendline")
 
                 fig = go.Figure()
 
@@ -171,7 +167,7 @@ class HeatmapScatter:
                         marker=dict(size=8, color=color_map[country])  
                     ))
 
-                    if trendline_type == "Trendline for Each Country":
+                    if show_country_trendline:
                         x = country_data[x_variable].values
                         y = country_data[y_variable].values
                         x_with_const = sm.add_constant(x)
@@ -186,7 +182,7 @@ class HeatmapScatter:
                             line=dict(color=color_map[country], dash="dash")
                         ))
 
-                if trendline_type == "General Trendline":
+                if show_general_trendline:
                     all_x = np.array(all_x)
                     all_y = np.array(all_y)
                     all_x_with_const = sm.add_constant(all_x)
@@ -212,4 +208,3 @@ class HeatmapScatter:
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.warning("No data available for the selected criteria to create a scatterplot.")
-
