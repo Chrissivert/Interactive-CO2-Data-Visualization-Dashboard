@@ -105,14 +105,6 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
         col21, col22, col23, col24, col25 = st.columns([1,1,1,1,1])
         add_dissolution_of_the_soviet_union = col21.checkbox("Show the Dissolution of the Soviet Union", value=False)
         
-    # Function to get next available position for annotation
-    def get_next_position():
-        positions = ["top left", "top right", "bottom left", "bottom right"]
-        for pos in positions:
-            if pos not in used_positions:
-                used_positions.add(pos)
-                return pos
-        return "bottom left"  # Default if no position is available
         
     if add_dissolution_of_the_soviet_union:
         fig.add_vline(
@@ -169,7 +161,7 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     if add_the_great_depression:
         fig.add_vline(
             x=1929, 
-            line=dict(color="blue", dash="dash"), 
+            line=dict(color="yellow", dash="dash"), 
             annotation_text="Great Depression<br>1929",
             annotation_position="top left"
         )
