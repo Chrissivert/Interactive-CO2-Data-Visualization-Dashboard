@@ -93,7 +93,7 @@ def filtering(dataframe):
 
     filtered_data = dataframe
     
-    is_filtered = True
+    is_filtered = False
     filtered_data = filtered_data[(
         filtered_data["co2_per_capita"] >= co2_min) & 
         (filtered_data["co2_per_capita"] <= co2_max)
