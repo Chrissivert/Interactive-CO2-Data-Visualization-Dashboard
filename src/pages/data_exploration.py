@@ -22,7 +22,7 @@ def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, 
             st.plotly_chart(map_fig, use_container_width=True)
         else:
             # Create two columns for displaying map and pie chart
-            col1, col2 = st.columns([3, 1])
+            col1, col2 = st.columns([4, 2])
             
             with col1:
                 # Map chart
@@ -259,7 +259,6 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
     )
 
     return map_fig
-
 def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column):
     # Filter the dataframe based on the selected year range
     filtered_dataframe = dataframe[
@@ -273,7 +272,6 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     # Aggregate data for the selected countries for the given year
     data_by_country = filtered_countries_df.groupby("country")[target_column].mean().reset_index()
 
-    
     # Calculate percentage of total for each country
     total_data = data_by_country[target_column].sum()
     data_by_country["percentage"] = (data_by_country[target_column] / total_data) * 100
@@ -299,6 +297,23 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     # Set the hover text to show percentages with 2 decimals
     pie_fig.update_traces(
         hovertemplate="%{label}: %{value:.2f}%<extra></extra>"  # Format percentage to 2 decimals
+    )
+
+    # Add annotation for the text below the chart
+    description_text = (
+    f"Illustrates the distribution of<br>"
+    f"{target_column} as a % of the total,<br>"
+    f"averaged across the selected years<br>"
+    f"({selected_year_range[0]}-{selected_year_range[1]}),<br>"
+    f"for the selected countries."
+)
+    pie_fig.add_annotation(
+        text=description_text,
+        xref="paper", yref="paper",  # Position relative to the chart
+        x=0.5, y=-0.3,               # Centered below the chart
+        showarrow=False,             # No arrow pointing to the text
+        font=dict(size=12),          # Adjust font size
+        align="center"
     )
 
     return pie_fig

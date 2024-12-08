@@ -97,10 +97,8 @@ def get_unique_continents(dataframes: list) -> list:
     for dataframe in dataframes:
         for country in dataframe['country'].unique():  # Iterate over unique countries
             continent = country_to_continent(country)  # Get continent for the country
-            if continent:  # Only add the continent if it's not None
+            if continent and continent != 'Oceania':  # Only add the continent if it's not None | Ignores Oceania because it does not work
                 continents.add(continent)
-                if continent == 'Oceania':
-                    continents.remove('Oceania') # Remove Oceania from the list of continents, because it does not work
     return sorted(continents)  # Return the sorted list of unique continents
 
 
