@@ -155,12 +155,6 @@ def help_dialog():
             - **Continent Selection:** You can also choose to view data by continent, enabling a broader geographical focus.
         """)
 
-    with st.expander("Pie"):
-        st.write("""
-            The **Pie Chart** displays the proportion of total CO₂ emissions from selected countries within a specified year range.
-            It illustrates the distribution of CO₂ emissions per capita as a percentage of total emissions, averaged across the selected years for the chosen countries.
-        """)
-
     with st.expander("Global Event"):
         st.write("""
             The **Global Events** overlays global events (such as WW1 and WW2) on the timeline, showing how CO₂ emissions changed during those events.
@@ -171,6 +165,17 @@ def help_dialog():
             The **Predict the Future** feature allows you to forecast future CO₂ emissions based on historical data. The chart will display predictions using one of two models:
             - **Linear Regression:** A linear approach to predict trends based on past data.
             - **Polynomial Features:** A more flexible approach that fits a polynomial model to the data for potentially more accurate future predictions.
+        """)
+        
+    with st.expander("Bar"):
+        st.write("""
+            The **Bar Chart** displays the average values of CO₂ emissions from selected countries within a specified year range.
+            The chart helps compare the distribution of CO₂ emissions across countries, providing insights into regional and historical trends.
+        """)
+        
+    with st.expander("Scatter Plot"):
+        st.write("""
+            The **Scatter Plot** shows the relationship between two selected attributes. Once you select two variables, the plot will display the relationship between them and indicate the trend between the attributes.
         """)
 
     with st.expander("Correlation Heatmap"):
@@ -186,11 +191,6 @@ def help_dialog():
     with st.expander("Raw Data"):
         st.write("""
             The **Raw Data** section provides a simple table of all the data without any interactive features. This allows users to view the underlying dataset, including any missing (NA) values and other raw information.
-        """)
-
-    with st.expander("Scatter Plot"):
-        st.write("""
-            The **Scatter Plot** shows the relationship between two selected attributes. Once you select two variables, the plot will display the relationship between them and indicate the trend between the attributes.
         """)
 
 def help_button():
