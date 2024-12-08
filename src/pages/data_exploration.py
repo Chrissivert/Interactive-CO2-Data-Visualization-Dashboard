@@ -174,7 +174,9 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
     percentile_threshold = merged_dataframe[target_column].quantile(0.98)
 
     title_text = (
-    "Co2 per Capita Map Over Time" if is_filtered else "Combined Attribute(s) Map Over Time"
+    f"Combined Attribute(s) Map Over Time"
+    if is_filtered
+    else "CO₂ per Capita Map Over Time"
 )
 
     map_fig = px.choropleth(

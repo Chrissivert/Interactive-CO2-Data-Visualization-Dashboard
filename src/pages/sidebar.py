@@ -75,7 +75,7 @@ def filtering(dataframe):
     apply_carbon_tax = st.sidebar.checkbox("Apply Carbon Tax Filter", value=False)
     if apply_carbon_tax:
         carbon_tax_min, carbon_tax_max = st.sidebar.slider(
-            "Carbon Tax ($ per tonne of CO₂ equivalent)", 
+            "Carbon Tax (USD per tonne of CO₂ equivalent)", 
             int(dataframe["Carbon_tax"].min()), 
             int(dataframe["Carbon_tax"].max()), 
             (int(dataframe["Carbon_tax"].min()), int(dataframe["Carbon_tax"].max()))
@@ -93,7 +93,7 @@ def filtering(dataframe):
 
     filtered_data = dataframe
     
-    is_filtered = True
+    is_filtered = False
     filtered_data = filtered_data[(
         filtered_data["co2_per_capita"] >= co2_min) & 
         (filtered_data["co2_per_capita"] <= co2_max)
