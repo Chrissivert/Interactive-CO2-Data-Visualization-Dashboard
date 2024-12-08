@@ -9,7 +9,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-st.title("Interactive Data Visualization Dashboard")
+st.title("Interactive CO₂ Data Visualization Dashboard")
 
 file_mapping = {
     "co2_per_capita": "data/co2-emissions-per-capita.csv",
@@ -31,6 +31,6 @@ src.pages.data_exploration.page(
     [filted_dataframe], [merged_dataframe], is_filtered, selected_continent, selected_country, selected_year_range, target_column
 )
 
-viz = HeatmapScatter(merged_dataframe, selected_country, selected_year_range)
+viz = HeatmapScatter(merged_dataframe, selected_country, selected_year_range, selected_continent)
 viz.display_heatmap()
 viz.display_scatterplot()
