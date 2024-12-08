@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import requests
 import numpy as np
 import pycountry_convert as pc
 
@@ -29,8 +28,7 @@ def merge_dataframes(dataframes: dict) -> pd.DataFrame:
     """Merge all datasets into a single DataFrame on 'country' and 'year'."""
     merged_df = None
     
-    for name, df in dataframes.items():  # Iterate over dictionary items
-        # Ensure required columns exist
+    for name, df in dataframes.items(): 
         if not {'country', 'year'}.issubset(df.columns):
             st.warning(f"Dataset {name} is missing required columns ('country', 'year'). Skipping.")
             continue
@@ -38,7 +36,6 @@ def merge_dataframes(dataframes: dict) -> pd.DataFrame:
         if merged_df is None:
             merged_df = df
         else:
-            # Merge on common columns ('country', 'year')
             merged_df = pd.merge(merged_df, df, on=['country', 'year', 'Code'], how='outer')
     
     return merged_df
@@ -82,24 +79,22 @@ def predict_future_values_with_models(country_specific_data: pd.DataFrame, selec
 
 def country_to_continent(country_name):
     try:
-        # Convert country name to ISO 2 code
+        
         country_alpha2 = pc.country_name_to_country_alpha2(country_name)
-        # Convert ISO 2 code to continent code
         country_continent_code = pc.country_alpha2_to_continent_code(country_alpha2)
-        # Convert continent code to continent name
         country_continent_name = pc.convert_continent_code_to_continent_name(country_continent_code)
         return country_continent_name
     except Exception as e:
         return None
     
 def get_unique_continents(dataframes: list) -> list:
-    continents = set()  # Initialize an empty set to store continents
+    continents = set()  
     for dataframe in dataframes:
-        for country in dataframe['country'].unique():  # Iterate over unique countries
-            continent = country_to_continent(country)  # Get continent for the country
-            if continent and continent != 'Oceania':  # Only add the continent if it's not None | Ignores Oceania because it does not work
+        for country in dataframe['country'].unique():  
+            continent = country_to_continent(country)  
+            if continent and continent != 'Oceania':  
                 continents.add(continent)
-    return sorted(continents)  # Return the sorted list of unique continents
+    return sorted(continents)  
 
 
 def get_countries_by_continent(dataframes: list, selected_continent: str) -> list:

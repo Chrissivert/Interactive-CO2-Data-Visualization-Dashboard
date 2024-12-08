@@ -30,7 +30,6 @@ class FuturePrediction:
                 country_specific_data, self.target_column, self.years_to_predict, model
             )
             
-            # Map selected countries to colors
             color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(self.selected_countries)}
 
             predictions_fig.add_trace(go.Scatter(
@@ -38,19 +37,17 @@ class FuturePrediction:
                 y=country_specific_data[self.target_column],
                 mode="lines",
                 name=f"Historical {self.target_column} ({country})",
-                line=dict(color=color_map[country])  # Use the shared color map
+                line=dict(color=color_map[country])  
             ))
             predictions_fig.add_trace(go.Scatter(
                 x=future_years.flatten(),
                 y=predictions,
                 mode="lines+markers",
                 name=f"Predicted {self.target_column} ({country})",
-                line=dict(color=color_map[country])  # Use the shared color map
+                line=dict(color=color_map[country])  
             ))
 
         return predictions_fig
-    
-    
 
     def plot(self, tab, model, special_function=None):
         with tab:
@@ -60,7 +57,7 @@ class FuturePrediction:
             fig_pred.update_layout(
                 title=f"Prediction for Next {self.years_to_predict} Years",
                 xaxis_title="Year",
-                yaxis_title=self.target_column,  # Dynamic metric in the y-axis
+                yaxis_title=self.target_column,  
                 legend_title="Country",
                 yaxis_type='log' if log_scale else 'linear'
             )

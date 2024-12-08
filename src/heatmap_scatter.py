@@ -22,18 +22,15 @@ class HeatmapScatter:
         self.selected_country = selected_country
         self.selected_year_range = selected_year_range
 
-        # Filter the data based on the selected country and year range
         self.filtered_df = self.filter_data()
 
     def filter_data(self) -> pd.DataFrame:
         """Filter the data based on selected country and year range."""
-        df = self.dataframes  # Assuming dataframes is a single dataframe or a dict of dataframes.
+        df = self.dataframes  
         
         if isinstance(df, dict):
-            # If data is passed as a dictionary of dataframes, access the relevant dataframe
             df = df.get(self.selected_country, pd.DataFrame())
         
-        # Filter by year range if necessary
         if self.selected_year_range:
             df = df[(df['year'] >= self.selected_year_range[0]) & (df['year'] <= self.selected_year_range[1])]
         
@@ -55,42 +52,37 @@ class HeatmapScatter:
         if self.filtered_df is not None:            
             tab1, tab2 = st.tabs(["Correlation Heatmap", "Raw Data"])
             
-            # World data heatmap
-            # Choose the appropriate DataFrame based on the user's selection
             heatmap_data = data
             
-            # Only include numerical columns for correlation matrix
             numerical_cols = heatmap_data.select_dtypes(include='number')
             
             if numerical_cols.shape[1] > 1:
                 correlation_matrix = numerical_cols.corr()
                 
-                tab2.dataframe(heatmap_data)  # Display the raw data table
+                tab2.dataframe(heatmap_data)  
                 
                 with tab1: 
-                    # Create the heatmap with Plotly
                     fig = go.Figure(data=go.Heatmap(
                         z=correlation_matrix.values,
                         x=correlation_matrix.columns,
                         y=correlation_matrix.columns,
-                        colorscale='RdBu',  # Color scale
-                        zmin=-1,  # Set the lower limit of the color range
-                        zmax=1,   # Set the upper limit of the color range
+                        colorscale='RdBu',
+                        zmin=-1,  
+                        zmax=1,   
                         colorbar=dict(title="Correlation"),
-                        hoverongaps=False  # Hide gaps on hover
+                        hoverongaps=False
                     ))
                     
-                    # Update layout for better visualization
                     fig.update_layout(
                         title="Correlation Heatmap",
                         xaxis_title="Columns",
                         yaxis_title="Columns",
                         autosize=True,
-                        height=700,  # Set height of the heatmap
-                        width=900   # Set width of the heatmap
+                        height=700,  
+                        width=900   
                     )
                     
-                    # Display the Plotly figure
+                    
                     st.plotly_chart(fig, use_container_width=True)
             else:
                 st.warning("Not enough numerical columns in the dataset to create a heatmap.")
@@ -100,10 +92,7 @@ class HeatmapScatter:
             if self.filtered_df is not None:
                 st.subheader("Scatter plot")
 
-                # Drop any NaN values from the dataframe
                 self.filtered_df = self.filtered_df.dropna()
-
-                # Dropdown for X and Y-axis selection
                 col1, col2 = st.columns([1, 1])
                 
                 x_variable = col1.selectbox("Select X-axis", self.filtered_df.select_dtypes(include='number').columns, index=0, key="scatter_x")
@@ -111,10 +100,9 @@ class HeatmapScatter:
 
                 fig = go.Figure()
 
-                # Shared color map
                 color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(self.selected_country)}
 
-                # Add scatter points for each country in the order of selected_country
+                
                 for country in self.selected_country:
                     country_data = self.filtered_df[self.filtered_df["country"] == country]
 
@@ -123,14 +111,13 @@ class HeatmapScatter:
                         continue
 
                     fig.add_trace(go.Scatter(
-                        x=country_data[x_variable],  # Selected X-axis variable
-                        y=country_data[y_variable],  # Selected Y-axis variable
-                        mode="markers",  # Only markers (no lines)
+                        x=country_data[x_variable],  
+                        y=country_data[y_variable],  
+                        mode="markers",  
                         name=f"{country} {x_variable} vs {y_variable}",
-                        marker=dict(size=8, color=color_map[country])  # Assign color based on color_map
+                        marker=dict(size=8, color=color_map[country])  
                     ))
 
-                # Update layout
                 fig.update_layout(
                     template="plotly_dark",
                     title=f"{x_variable} vs {y_variable} for {self.selected_country[0]}" if len(self.selected_country) == 1 else f"{x_variable} vs {y_variable}",
@@ -139,8 +126,6 @@ class HeatmapScatter:
                     legend_title="Country",
                     showlegend=True
                 )
-
-                # Display the plot
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.warning("No data available for the selected criteria to create a scatterplot.")

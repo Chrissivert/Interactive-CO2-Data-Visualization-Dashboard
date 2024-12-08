@@ -6,38 +6,23 @@ def filtering(dataframe):
 
     is_filtered = False
 
-    # Initialize session state for selected_country
-    # if "selected_country" not in st.session_state:
-    #     st.session_state.selected_country = []
-
-    # Filter by continent and country
     continents = s.get_unique_continents([dataframe])
     countries = s.get_unique_countries([dataframe])
     selected_continent = st.sidebar.selectbox("Select Continent", ["World"] + continents)
 
-    # Update the list of filtered countries based on the selected continent
     if selected_continent == "World":
         filtered_countries = countries
     else:
         filtered_countries = s.get_countries_by_continent([dataframe], selected_continent)
 
-    # Preserve previously selected countries if still in the filtered list
-    # st.session_state.selected_country = [
-    #     country for country in st.session_state.selected_country if country in filtered_countries
-    # ]
-
-    # Let the user update the selected countries
     selected_country = st.sidebar.multiselect(
         "Select Country",
-        filtered_countries,  # Current options
-        # default=st.session_state.selected_country  # Default to preserved selections
+        filtered_countries,  
     )
-    # st.session_state.selected_country = selected_country  # Update session state
 
     if not selected_country:
         st.info("Select a country to unlock more interaction tools!")
 
-    # Filter by year range
     years = s.get_unique_years([dataframe])
     selected_year_range = st.sidebar.slider(
         "Select Year Range", 
@@ -46,15 +31,13 @@ def filtering(dataframe):
         (min(years), max(years))
     )
 
-    # Default filter values (set initial values)
     apply_life_expectancy = False
-    apply_co2 = False
     apply_gdp = False
     apply_carbon_tax = False
     apply_renewables = False
 
     life_expectancy_min, life_expectancy_max = int(dataframe["Life_expectancy"].min()), int(dataframe["Life_expectancy"].max())
-    co2_min, co2_max = int(dataframe["co2_per_capita"].min()), 30  # Set hardcoded max for CO2
+    co2_min, co2_max = int(dataframe["co2_per_capita"].min()), 30  
     gdp_min, gdp_max = int(dataframe["GDP_per_capita"].min()), int(dataframe["GDP_per_capita"].max())
     carbon_tax_min, carbon_tax_max = int(dataframe["Carbon_tax"].min()), int(dataframe["Carbon_tax"].max())
     renewables_min, renewables_max = int(dataframe["Renewables"].min()), int(dataframe["Renewables"].max())
@@ -62,8 +45,8 @@ def filtering(dataframe):
     co2_min, co2_max = st.sidebar.slider(
         "CO₂ per Capita in tonnes", 
         int(dataframe["co2_per_capita"].min()), 
-        30,  # Hardcode the maximum value to 30
-        (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
+        30,  
+        (int(dataframe["co2_per_capita"].min()), 30) 
     )
 
     st.sidebar.subheader("Filter by Attributes")
@@ -77,15 +60,6 @@ def filtering(dataframe):
             int(dataframe["Life_expectancy"].max()), 
             (int(dataframe["Life_expectancy"].min()), int(dataframe["Life_expectancy"].max()))
         )
-
-    # CO₂ per Capita filter
-    # apply_co2 = st.sidebar.checkbox("Apply CO₂ per Capita Filter", value=False)
-    # co2_min, co2_max = st.sidebar.slider(
-    #     "CO₂ per Capita in tonnes", 
-    #     int(dataframe["co2_per_capita"].min()), 
-    #     30,  # Hardcode the maximum value to 30
-    #     (int(dataframe["co2_per_capita"].min()), 30)  # Default range from min value to 30
-    # )
 
     # GDP per capita filter
     apply_gdp = st.sidebar.checkbox("Apply GDP per Capita Filter", value=False)
@@ -111,13 +85,12 @@ def filtering(dataframe):
     apply_renewables = st.sidebar.checkbox("Apply Renewables Filter", value=False)
     if apply_renewables:
         renewables_min, renewables_max = st.sidebar.slider(
-            "Renewables (%)", 
+            "Renewables (%) (proportion of the total energy consumed by a country, that comes from renewable energy sources in %)", 
             int(dataframe["Renewables"].min()), 
             int(dataframe["Renewables"].max()), 
             (int(dataframe["Renewables"].min()), int(dataframe["Renewables"].max()))
         )
 
-    # Apply filters only for selected attributes
     filtered_data = dataframe
     
     is_filtered = True
@@ -132,12 +105,6 @@ def filtering(dataframe):
             filtered_data["Life_expectancy"] >= life_expectancy_min) & 
             (filtered_data["Life_expectancy"] <= life_expectancy_max)
         ]
-
-    # is_filtered = True
-    # filtered_data = filtered_data[(
-    #     filtered_data["co2_per_capita"] >= co2_min) & 
-    #     (filtered_data["co2_per_capita"] <= co2_max)
-    # ]
 
     if apply_gdp:
         is_filtered = True
@@ -160,7 +127,6 @@ def filtering(dataframe):
             (filtered_data["Renewables"] <= renewables_max)
         ]
 
-    # Apply country and year filters
     if selected_country:
         filtered_data = filtered_data[filtered_data["country"].isin(selected_country)]
 
@@ -229,9 +195,6 @@ def help_dialog():
             The **Scatter Plot** shows the relationship between two selected attributes. Once you select two variables, the plot will display the relationship between them and indicate the trend between the attributes.
         """)
 
-
-
-    
 def help_button():
     if st.sidebar.button("Need Help❓"):
         help_dialog()

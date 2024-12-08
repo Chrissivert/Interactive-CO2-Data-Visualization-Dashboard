@@ -2,10 +2,10 @@ import streamlit as st
 import src.pages.data_exploration
 import src.service as s
 import src.pages.sidebar as sidebar
-from src.heatmap_scatter import HeatmapScatter  # Import the Visualization class
+from src.heatmap_scatter import HeatmapScatter 
 
 st.set_page_config(
-    page_title="Interactive Data Visualization Dashboard",
+    page_title="Interactive CO₂ Data Visualization Dashboard",
     layout="wide",
     initial_sidebar_state="expanded"
 )

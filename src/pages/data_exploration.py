@@ -7,26 +7,21 @@ from src.future_prediction import FuturePrediction
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
-# from sklearn.ensemble import RandomForestRegressor
 
 color_palette = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
 
 def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, selected_countries, selected_year_range, target_column):
     for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
         
-        # Check if no countries are selected
         if len(selected_countries) == 0:
-            # Call map_chart with both filtered and merged dataframes
             map_fig = map_chart(merged_dataframe, dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column)
             if map_fig is None:
                     return
             st.plotly_chart(map_fig, use_container_width=True)
         else:
-            # Create two columns for displaying map and pie chart
             col1, col2 = st.columns([4, 2])
             
             with col1:
-                # Map chart
                 map_fig = map_chart(merged_dataframe, dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column)
 
                 if map_fig is None:
@@ -34,11 +29,9 @@ def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, 
                 st.plotly_chart(map_fig, use_container_width=True)
             
             with col2:
-                # Pie chart
                 pie_fig = pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column)
                 st.plotly_chart(pie_fig, use_container_width=True)
             
-            # Create columns for Y-axis scale and prediction options
             col_y_axis, col_chart = st.columns([1, 5])
             
             with col_y_axis:
@@ -63,27 +56,23 @@ def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, 
                             target_column=target_column 
                         )
                         
-                        # Create tabs for different prediction models
                         tab1, tab2 = st.tabs(["Linear Regression", "Polynomial Features"])
                         
-                        # Generate predictions for each model
                         future_prediction.plot(tab1, LinearRegression())
                         future_prediction.plot(tab2, make_pipeline(PolynomialFeatures(degree=4), LinearRegression()))
-                        # future_prediction.plot(tab3, RandomForestRegressor(n_estimators=100, random_state=42))
                     else:
                         st.plotly_chart(chart(dataframe, selected_countries, selected_year_range, target_column, log_scale), use_container_width=True)
+
 def chart(dataframe, selected_country, selected_year_range, target_column, log_scale=False):
     filtered_data = dataframe[(dataframe["country"].isin(selected_country)) 
                               & (dataframe["year"] >= selected_year_range[0]) 
                               & (dataframe["year"] <= selected_year_range[1])]
 
-    # Sort the filtered data by year to ensure the x-axis is from low to high
     filtered_data = filtered_data.sort_values(by="year")
     
     color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(selected_country)}
 
 
-    # Create the line chart
     fig = px.line(
         filtered_data, 
         x='year', 
@@ -91,15 +80,11 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
         color="country", 
         title=f"{target_column} over time",
         log_y=log_scale,
-        category_orders={"country": selected_country},  # Maintain the order of countries
-        color_discrete_map=color_map  # Use the shared color map
+        category_orders={"country": selected_country}, 
+        color_discrete_map=color_map 
     )
 
-    
-    # Track used annotation positions
-    used_positions = set()
 
-    # Add vertical lines for the Paris Agreement and COVID-19 outbreak
     with st.expander("View When Different Global Events Happened:"):
         col11, col12, col13, col14, col15 = st.columns([1,1,1,1,1])
         add_paris_agreement_line = col11.checkbox("Show Paris Agreement", value=True)
@@ -175,21 +160,17 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
     return fig
 
 def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_continent, selected_year_range, selected_countries, target_column):
-    # Check if the filtered_dataframe is empty after applying the selected filters
     if filtered_dataframe.empty:
         st.warning("None of the selected countries fit the filters.")
         return None
 
-    # Filter the filtered_dataframe based on the selected year range
     year_dataframe = filtered_dataframe[
         (filtered_dataframe["year"] >= selected_year_range[0]) & 
         (filtered_dataframe["year"] <= selected_year_range[1])
     ]
     
-    # Sort the dataframe by year
     year_dataframe = year_dataframe.sort_values(by="year")
 
-    # Calculate the 98th percentile for color scaling based on the merged_dataframe
     percentile_threshold = merged_dataframe[target_column].quantile(0.98)
 
     title_text = (
@@ -199,21 +180,19 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
 )
 
     map_fig = px.choropleth(
-        year_dataframe,  # Use the filtered dataframe
-        locations="country",  # Column with country names
-        locationmode="country names",  # Use country names for the map
-        color=target_column,  # Use target_column for coloring the countries
-        color_continuous_scale="Viridis",  # Color scale from light (low) to dark (high)
-        # labels={target_column: f"{target_column} per Capita"},
+        year_dataframe, 
+        locations="country",
+        locationmode="country names", 
+        color=target_column,  
+        color_continuous_scale="Viridis", 
         labels={target_column: "CO2 per Capita (tonnes)"},
-        title=title_text,  # Dynamic title based on is_filtered
-        hover_name="country",  # Show country name on hover
-        hover_data=[target_column],  # Show data for target_column on hover
-        animation_frame="year",  # Create an animation for the years
-        range_color=[0, percentile_threshold]  # Set the range for color scale up to the 98th percentile from merged_dataframe
+        title=title_text, 
+        hover_name="country", 
+        hover_data=[target_column],
+        animation_frame="year",  
+        range_color=[0, percentile_threshold] 
     )
 
-    # Set up the map's continent scope
     continent_scope = {
         "World": "world",
         "Europe": "europe",
@@ -223,42 +202,38 @@ def map_chart(merged_dataframe, filtered_dataframe, is_filtered, selected_contin
         "Africa": "africa"
     }
 
-    # Apply the selected continent's scope
     map_fig.update_geos(
-        scope=continent_scope[selected_continent],  # Set the map scope to the selected continent
+        scope=continent_scope[selected_continent],  
         showcoastlines=True, 
         coastlinecolor="Black",
         projection_type="natural earth",
     )
 
-    # Add a scattergeo trace to highlight selected countries with red markers
     selected_countries_df = filtered_dataframe[filtered_dataframe["country"].isin(selected_countries)]
 
     scatter_trace = go.Scattergeo(
     locations=selected_countries_df["country"],
     locationmode="country names",
-    mode="markers",  # Only markers, no text labels
+    mode="markers",  
     marker=dict(
-        size=4,  # Adjust the size of the markers
-        color="red",  # Set the color to red for selected countries
-        line=dict(width=4, color="red"),  # Border color for selected countries (red)
+        size=4,  
+        color="red", 
+        line=dict(width=4, color="red"), 
     ),
-    showlegend=False,  # Hide the legend for the markers
-    hoverinfo='location',  # Only show the location when hovering over the markers (remove "Trace 1")
+    showlegend=False,  
+    hoverinfo='location', 
 )
-    # Add the scatter trace to the map
     map_fig.add_trace(scatter_trace)
 
-    # Increase the size of the map
     map_fig.update_layout(
-        autosize=True,  # Automatically adjust size
-        height=600,  # Set a fixed height for the map (adjust as needed)
-        title=dict(font=dict(size=24))  # Increase title font size for better readability
+        autosize=True,  
+        height=600,  
+        title=dict(font=dict(size=24))  
     )
 
     return map_fig
+
 def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, target_column):
-    # Filter the dataframe based on the selected year range
     filtered_dataframe = dataframe[
         (dataframe["year"] >= selected_year_range[0]) & 
         (dataframe["year"] <= selected_year_range[1])
@@ -267,42 +242,35 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
     color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(selected_countries)}
 
 
-    # Filter further for the selected countries
     filtered_countries_df = filtered_dataframe[filtered_dataframe["country"].isin(selected_countries)]
     
-    # Aggregate data for the selected countries for the given year
     data_by_country = filtered_countries_df.groupby("country")[target_column].mean().reset_index()
 
-    # Calculate percentage of total for each country
     total_data = data_by_country[target_column].sum()
     data_by_country["percentage"] = (data_by_country[target_column] / total_data) * 100
 
-    # Dynamic title based on is_filtered
     chart_title = (
         f"Combined Attribute(s) <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})"
         if is_filtered
         else f"{target_column} <br>(Average from {selected_year_range[0]} to {selected_year_range[1]})"
     )
 
-    # Create the pie chart with category_orders to maintain the order from data_by_country
     pie_fig = px.pie(
         data_by_country, 
         names="country", 
         values="percentage", 
         title=chart_title,
         labels={"percentage": f"{target_column} (%)"},
-        category_orders={"country": selected_countries},  # Maintain the order of countries
-        color="country",  # Color by country
-        color_discrete_map=color_map  # Use the shared color map
+        category_orders={"country": selected_countries},  
+        color="country",  
+        color_discrete_map=color_map  
     )
 
 
-    # Set the hover text to show percentages with 2 decimals
     pie_fig.update_traces(
-        hovertemplate="%{label}: %{value:.2f}%<extra></extra>"  # Format percentage to 2 decimals
+        hovertemplate="%{label}: %{value:.2f}%<extra></extra>"  
     )
 
-    # Add annotation for the text below the chart
     description_text = (
     f"Illustrates the distribution of<br>"
     f"{target_column} as a % of the total,<br>"
@@ -312,10 +280,10 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
 )
     pie_fig.add_annotation(
         text=description_text,
-        xref="paper", yref="paper",  # Position relative to the chart
-        x=0.5, y=-0.3,               # Centered below the chart
-        showarrow=False,             # No arrow pointing to the text
-        font=dict(size=12),          # Adjust font size
+        xref="paper", yref="paper", 
+        x=0.5, y=-0.3,               
+        showarrow=False,             
+        font=dict(size=12),          
         align="center"
     )
 
