@@ -5,6 +5,8 @@ import seaborn as sns
 import plotly.graph_objects as go
 import statsmodels.api as sm
 import plotly.express as px
+import numpy as np
+import statsmodels.api as sm
 
 color_palette = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
 
@@ -86,7 +88,7 @@ class HeatmapScatter:
                     st.plotly_chart(fig, use_container_width=True)
             else:
                 st.warning("Not enough numerical columns in the dataset to create a heatmap.")
-
+    
     def display_scatterplot(self):
         if len(self.selected_country) != 0:
             if self.filtered_df is not None:
@@ -94,14 +96,23 @@ class HeatmapScatter:
 
                 self.filtered_df = self.filtered_df.dropna()
                 col1, col2 = st.columns([1, 1])
-                
                 x_variable = col1.selectbox("Select X-axis", self.filtered_df.select_dtypes(include='number').columns, index=0, key="scatter_x")
                 y_variable = col2.selectbox("Select Y-axis", self.filtered_df.select_dtypes(include='number').columns, index=1, key="scatter_y")
+
+                # Toggle for trendline type
+                trendline_type = st.radio(
+                    "Select Trendline Option",
+                    options=["None", "Trendline for Each Country", "General Trendline"],
+                    index=0
+                )
 
                 fig = go.Figure()
 
                 color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(self.selected_country)}
 
+                # Add scatter points for each country
+                all_x = []
+                all_y = []
                 
                 for country in self.selected_country:
                     country_data = self.filtered_df[self.filtered_df["country"] == country]
@@ -110,6 +121,11 @@ class HeatmapScatter:
                         st.warning(f"No data available for {country} to create scatterplot.")
                         continue
 
+                    # Add data to overall list for general trendline
+                    all_x.extend(country_data[x_variable].values)
+                    all_y.extend(country_data[y_variable].values)
+
+                    # Scatter pointsjap
                     fig.add_trace(go.Scatter(
                         x=country_data[x_variable],  
                         y=country_data[y_variable],  
@@ -118,6 +134,41 @@ class HeatmapScatter:
                         marker=dict(size=8, color=color_map[country])  
                     ))
 
+                    # Add individual trendline if selected
+                    if trendline_type == "Trendline for Each Country":
+                        x = country_data[x_variable].values
+                        y = country_data[y_variable].values
+                        x_with_const = sm.add_constant(x)
+                        model = sm.OLS(y, x_with_const).fit()
+                        trendline = model.predict(x_with_const)
+
+                        # Add the trendline
+                        fig.add_trace(go.Scatter(
+                            x=x,
+                            y=trendline,
+                            mode="lines",
+                            name=f"{country} Trendline",
+                            line=dict(color=color_map[country], dash="dash")  # Dashed line for trendline
+                        ))
+
+                # Add general trendline if selected
+                if trendline_type == "General Trendline":
+                    all_x = np.array(all_x)
+                    all_y = np.array(all_y)
+                    all_x_with_const = sm.add_constant(all_x)
+                    general_model = sm.OLS(all_y, all_x_with_const).fit()
+                    general_trendline = general_model.predict(all_x_with_const)
+
+                    # Add the general trendline
+                    fig.add_trace(go.Scatter(
+                        x=all_x,
+                        y=general_trendline,
+                        mode="lines",
+                        name="General Trendline",
+                        line=dict(color="white", dash="dash")  # White dotted line
+                    ))
+
+                # Update layout
                 fig.update_layout(
                     template="plotly_dark",
                     title=f"{x_variable} vs {y_variable} for {self.selected_country[0]}" if len(self.selected_country) == 1 else f"{x_variable} vs {y_variable}",
