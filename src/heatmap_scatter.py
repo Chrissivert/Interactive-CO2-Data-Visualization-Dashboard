@@ -6,6 +6,8 @@ import plotly.graph_objects as go
 import statsmodels.api as sm
 import plotly.express as px
 
+color_palette = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
+
 class HeatmapScatter:
     def __init__(self, dataframes, selected_country, selected_year_range):
         """
@@ -109,22 +111,33 @@ class HeatmapScatter:
 
                 fig = go.Figure()
 
-                # Add scatter points for each country
-                for country in self.filtered_df[self.filter_data()["country"].isin(self.selected_country)]["country"].unique():
+                # Shared color map
+                color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(self.selected_country)}
+
+                # Add scatter points for each country in the order of selected_country
+                for country in self.selected_country:
                     country_data = self.filtered_df[self.filtered_df["country"] == country]
+
+                    if country_data.empty:
+                        st.warning(f"No data available for {country} to create scatterplot.")
+                        continue
+
                     fig.add_trace(go.Scatter(
-                        x=country_data[x_variable],  # Selected X-Axis variable
-                        y=country_data[y_variable],  # Selected Y-Axis variable
+                        x=country_data[x_variable],  # Selected X-axis variable
+                        y=country_data[y_variable],  # Selected Y-axis variable
                         mode="markers",  # Only markers (no lines)
                         name=f"{country} {x_variable} vs {y_variable}",
-                        marker=dict(size=8)  # Adjust size of points for visibility
+                        marker=dict(size=8, color=color_map[country])  # Assign color based on color_map
                     ))
 
+                # Update layout
                 fig.update_layout(
                     template="plotly_dark",
                     title=f"{x_variable} vs {y_variable} for {self.selected_country[0]}" if len(self.selected_country) == 1 else f"{x_variable} vs {y_variable}",
                     xaxis_title=x_variable,
-                    yaxis_title=y_variable
+                    yaxis_title=y_variable,
+                    legend_title="Country",
+                    showlegend=True
                 )
 
                 # Display the plot
