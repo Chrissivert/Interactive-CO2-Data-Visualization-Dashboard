@@ -4,6 +4,8 @@ import plotly.graph_objects as go
 import src.service as s
 import plotly as p
 
+color_palette = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
+
 class FuturePrediction:
     def __init__(self, selected_countries, years_to_predict, scale_type, dataframe, target_column):
         self.selected_countries = selected_countries
@@ -27,39 +29,24 @@ class FuturePrediction:
             future_years, predictions = s.predict_future_values_with_models(
                 country_specific_data, self.target_column, self.years_to_predict, model
             )
+            
+            # Map selected countries to colors
+            color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(self.selected_countries)}
 
             predictions_fig.add_trace(go.Scatter(
                 x=country_specific_data["year"],
                 y=country_specific_data[self.target_column],
                 mode="lines",
-                name=f"Historical {self.target_column} ({country})"
+                name=f"Historical {self.target_column} ({country})",
+                line=dict(color=color_map[country])  # Use the shared color map
             ))
-            
-        # color_map = []
-
-        for country in self.selected_countries:
-            # color_map.append(p.colors.DEFAULT_PLOTLY_COLORS[country])
-            
-            country_specific_data = country_data[country_data["country"] == country]
-            country_specific_data = country_specific_data[["year", self.target_column]].dropna()
-
-            future_years, predictions = s.predict_future_values_with_models(
-                country_specific_data, self.target_column, self.years_to_predict, model
-            )
-            
-            # color_map.append(p.colors.DEFAULT_PLOTLY_COLORS)
-            # st.write(color_map[country])
-
             predictions_fig.add_trace(go.Scatter(
                 x=future_years.flatten(),
                 y=predictions,
                 mode="lines+markers",
-                name=f"Predicted {self.target_column} ({country})"
-                # line=dict(color=hash(p.colors.DEFAULT_PLOTLY_COLORS[country]).as_integer_ratio()),
-                # marker=dict(color=hash(p.colors.DEFAULT_PLOTLY_COLORS[country]).as_integer_ratio())
+                name=f"Predicted {self.target_column} ({country})",
+                line=dict(color=color_map[country])  # Use the shared color map
             ))
-            
-            
 
         return predictions_fig
     

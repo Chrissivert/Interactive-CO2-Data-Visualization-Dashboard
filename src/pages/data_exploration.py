@@ -9,6 +9,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 # from sklearn.ensemble import RandomForestRegressor
 
+color_palette = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]
 
 def page(filtered_dataframe, merged_dataframe, is_filtered, selected_continent, selected_countries, selected_year_range, target_column):
     for idx, (dataframe, merged_dataframe) in enumerate(zip(filtered_dataframe, merged_dataframe)):
@@ -78,17 +79,22 @@ def chart(dataframe, selected_country, selected_year_range, target_column, log_s
 
     # Sort the filtered data by year to ensure the x-axis is from low to high
     filtered_data = filtered_data.sort_values(by="year")
+    
+    color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(selected_country)}
+
 
     # Create the line chart
     fig = px.line(
         filtered_data, 
         x='year', 
-        y=target_column,  # Use target_column instead of hardcoding the column name
+        y=target_column,
         color="country", 
         title=f"{target_column} over time",
         log_y=log_scale,
         category_orders={"country": selected_country},  # Maintain the order of countries
-    )    
+        color_discrete_map=color_map  # Use the shared color map
+    )
+
     
     # Track used annotation positions
     used_positions = set()
@@ -257,6 +263,9 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
         (dataframe["year"] >= selected_year_range[0]) & 
         (dataframe["year"] <= selected_year_range[1])
     ]
+    
+    color_map = {country: color_palette[i % len(color_palette)] for i, country in enumerate(selected_countries)}
+
 
     # Filter further for the selected countries
     filtered_countries_df = filtered_dataframe[filtered_dataframe["country"].isin(selected_countries)]
@@ -284,7 +293,9 @@ def pie_chart(dataframe, selected_year_range, is_filtered, selected_countries, t
         labels={"percentage": f"{target_column} (%)"},
         category_orders={"country": selected_countries},  # Maintain the order of countries
         color="country",  # Color by country
+        color_discrete_map=color_map  # Use the shared color map
     )
+
 
     # Set the hover text to show percentages with 2 decimals
     pie_fig.update_traces(
