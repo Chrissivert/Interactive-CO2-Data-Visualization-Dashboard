@@ -7,6 +7,7 @@ Created by:
 - Chris Sivert
 
 
+# How to run
 
 To install all required 'pip installations', run this code in the terminal:
 
